@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Loader, ArrowLeft, Info, Phone, MoreVertical, Paperclip, Smile, MessageSquare, Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
-import type { Conversation, Message } from '@/ai/flows/chat.types';
+import type { Conversation } from '@/ai/flows/chat.types';
 import { chat } from '@/ai/flows/chat-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useConversations, useMessages, sendMessage, updateConversationLastMessage } from '@/hooks/use-conversations';
@@ -41,9 +41,12 @@ export default function ChatPage() {
       // Clean up URL after setting conversation
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
-    } else if (!activeConversation) {
+    } else if (!activeConversation && conversations.length > 0) {
       // Set the first conversation as active by default if none is selected
-      setActiveConversation(conversations[0]);
+      const firstConversation = conversations[0];
+      if (firstConversation) {
+        setActiveConversation(firstConversation);
+      }
     }
   }, [conversations, conversationsLoading, activeConversation]);
 

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Filter, Grid3X3, List, Star, MapPin, Users, DollarSign } from 'lucide-react';
+import { Search, Filter, Grid3X3, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { VenueCard } from '@/components/venue-card';
@@ -262,6 +262,16 @@ export function ServicesPageClient({ initialListings }: ServicesPageClientProps)
                   key={listing.id}
                   {...listing}
                   isCard={viewMode === 'grid'}
+                  location={listing.location || 'Location not specified'}
+                  rating={listing.rating || 0}
+                  reviewCount={listing.reviewCount || 0}
+                  price={listing.price || 'Price not specified'}
+                  image={listing.image || ''}
+                  hint={listing.hint || ''}
+                  category={listing.category || 'Venue'}
+                  guestCapacity={listing.guestCapacity || 1}
+                  amenities={listing.amenities || {}}
+                  guestFavorite={listing.guestFavorite || false}
                 />
               ))}
             </div>

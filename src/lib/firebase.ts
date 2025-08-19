@@ -34,10 +34,10 @@ if (missingEnvVars.length > 0) {
   throw new Error(`Missing required Firebase environment variables: ${missingEnvVars.join(', ')}. Please check your .env.local file.`);
 }
 
-let app;
-let auth;
-let db;
-let storage;
+let app: any;
+let auth: any;
+let db: any;
+let storage: any;
 
 try {
   // Initialize Firebase if no apps exist

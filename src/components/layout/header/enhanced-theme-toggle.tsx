@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+
 import { Button } from '@/components/ui/button'
 import { 
   DropdownMenu, 
@@ -17,9 +17,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { 
   Sun, 
-  Moon, 
-  Monitor, 
-  Settings, 
+    Moon,
+  Monitor,
   Type, 
   Eye, 
   Accessibility,
@@ -27,10 +26,10 @@ import {
   Palette
 } from 'lucide-react'
 import { useEnhancedTheme } from '@/components/enhanced-theme-provider'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
+
 
 export function EnhancedThemeToggle() {
   const { 
@@ -44,7 +43,7 @@ export function EnhancedThemeToggle() {
     resetToDefaults 
   } = useEnhancedTheme()
   
-  const [showAdvanced, setShowAdvanced] = useState(false)
+
 
   const getThemeIcon = () => {
     switch (settings.theme) {
@@ -57,16 +56,7 @@ export function EnhancedThemeToggle() {
     }
   }
 
-  const getThemeLabel = () => {
-    switch (settings.theme) {
-      case 'light':
-        return 'Light'
-      case 'dark':
-        return 'Dark'
-      default:
-        return 'System'
-    }
-  }
+
 
   return (
     <div className="relative">
@@ -199,9 +189,12 @@ export function EnhancedThemeToggle() {
           size="sm"
           onClick={() => {
             const themes: ('light' | 'dark' | 'system')[] = ['light', 'dark', 'system']
-            const currentIndex = themes.indexOf(settings.theme)
+            const currentIndex = themes.indexOf(settings.theme || 'light')
             const nextIndex = (currentIndex + 1) % themes.length
-            setTheme(themes[nextIndex])
+            const nextTheme = themes[nextIndex]
+            if (nextTheme) {
+              setTheme(nextTheme)
+            }
           }}
           className="flex items-center gap-2"
         >

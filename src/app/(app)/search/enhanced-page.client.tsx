@@ -6,12 +6,12 @@ import { Filter, MapPin, Users, DollarSign, Grid, List, Map } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { VenueCard } from '@/components/venue-card';
 import { EnhancedSearch } from '@/components/search/enhanced-search';
 import { EnhancedFilters } from '@/components/search/enhanced-filters';
 import type { Listing } from '@/services/listings';
-import { performSearch } from '@/services/listings';
+import { searchListings } from '@/services/listings';
 
 interface EnhancedSearchPageClientProps {
   initialListings: Listing[];
@@ -39,7 +39,6 @@ export function EnhancedSearchPageClient({
   const router = useRouter();
   const searchParamsHook = useSearchParams();
   const [listings, setListings] = useState<Listing[]>(initialListings);
-  const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
   const [searchQuery, setSearchQuery] = useState(searchParams.q || '');
@@ -52,10 +51,9 @@ export function EnhancedSearchPageClient({
   const handleSearch = async (query: string, filters?: Record<string, any>) => {
     if (!query.trim()) return;
 
-    setLoading(true);
     try {
-      const searchParams = { ...searchParams, q: query, ...filters };
-      const results = await performSearch(searchParams);
+      const searchParamsObj = { ...searchParams, q: query, ...filters };
+              const results = await searchListings(searchParamsObj);
       setListings(results);
       
       // Update URL with search query
@@ -75,15 +73,12 @@ export function EnhancedSearchPageClient({
       router.push(`/search?${params.toString()}`);
     } catch (error) {
       console.error('Search error:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleFilterChange = async (newParams: typeof searchParams) => {
-    setLoading(true);
     try {
-      const results = await performSearch(newParams);
+              const results = await searchListings(newParams);
       setListings(results);
       
       // Update URL with new params
@@ -100,8 +95,6 @@ export function EnhancedSearchPageClient({
       router.push(`/search?${params.toString()}`);
     } catch (error) {
       console.error('Filter error:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -261,7 +254,20 @@ export function EnhancedSearchPageClient({
             {/* Results Grid/List */}
             <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-6'}>
               {listings.map((listing) => (
-                <VenueCard key={listing.slug} {...listing} />
+                <VenueCard 
+                  key={listing.slug} 
+                  {...listing} 
+                  location={listing.location || 'Location not specified'}
+                  rating={listing.rating || 0}
+                  reviewCount={listing.reviewCount || 0}
+                  price={listing.price || 'Price not specified'}
+                  image={listing.image || ''}
+                  hint={listing.hint || ''}
+                  category={listing.category || 'Venue'}
+                  guestCapacity={listing.guestCapacity || 1}
+                  amenities={listing.amenities || {}}
+                  guestFavorite={listing.guestFavorite || false}
+                />
               ))}
             </div>
 

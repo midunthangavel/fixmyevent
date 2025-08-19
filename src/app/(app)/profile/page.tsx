@@ -24,7 +24,7 @@ import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
-import { format } from 'date-fns';
+
 import { useRouter } from 'next/navigation';
 import {
   AlertDialog,
@@ -155,9 +155,7 @@ export default function AccountPage() {
   const { user, signOut, profile, becomeVendor } = useAuth();
   const router = useRouter();
 
-  const memberSince = user?.metadata?.creationTime 
-    ? format(new Date(user.metadata.creationTime), 'MMM yyyy') 
-    : 'a while ago';
+  const memberSince = 'a while ago';
 
   const handleLogout = async () => {
     await signOut();

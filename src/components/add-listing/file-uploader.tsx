@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useDropzone, FileRejection, DropEvent } from 'react-dropzone';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { useDropzone } from 'react-dropzone';
+import { Upload, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import Image from 'next/image';
 
@@ -15,7 +15,7 @@ export function FileUploader({ onFileSelect }: FileUploaderProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
-  const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[], event: DropEvent) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = [...files, ...acceptedFiles];
     setFiles(newFiles);
     onFileSelect(newFiles);
@@ -25,12 +25,15 @@ export function FileUploader({ onFileSelect }: FileUploaderProps) {
   }, [files, onFileSelect]);
 
   const removeFile = (index: number) => {
+    const urlToRevoke = previews[index]; // Store URL before filtering
     const newFiles = files.filter((_, i) => i !== index);
     const newPreviews = previews.filter((_, i) => i !== index);
     setFiles(newFiles);
     setPreviews(newPreviews);
     onFileSelect(newFiles);
-    URL.revokeObjectURL(previews[index]); // Clean up memory
+    if (urlToRevoke) {
+      URL.revokeObjectURL(urlToRevoke); // Clean up memory
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

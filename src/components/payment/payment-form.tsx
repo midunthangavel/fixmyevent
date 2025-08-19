@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+
 import { useToast } from '@/hooks/use-toast';
 import { CreditCard, Lock, Shield, CheckCircle, AlertCircle } from 'lucide-react';
 import { paymentFormSchema, type PaymentFormData, PAYMENT_METHOD } from '@/types/payment';
@@ -34,7 +34,7 @@ export function PaymentForm({ amount, currency = 'USD', bookingId, onSuccess, on
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
+
   } = useForm<PaymentFormData>({
     resolver: zodResolver(paymentFormSchema),
     defaultValues: {
@@ -45,12 +45,12 @@ export function PaymentForm({ amount, currency = 'USD', bookingId, onSuccess, on
     },
   });
 
-  const watchedAmount = watch('amount');
-  const watchedPaymentMethod = watch('paymentMethod');
+
+
 
   const handlePaymentMethodChange = (method: string) => {
     setSelectedMethod(method as keyof typeof PAYMENT_METHOD);
-    setValue('paymentMethod', method);
+    setValue('paymentMethod', method as any);
   };
 
   const onSubmit = async (data: PaymentFormData) => {
@@ -64,7 +64,7 @@ export function PaymentForm({ amount, currency = 'USD', bookingId, onSuccess, on
           crypto.randomUUID(),
           data.amount,
           data.currency,
-          { bookingId: bookingId || '', ...data.metadata }
+          { bookingId: bookingId || '' }
         );
         paymentId = stripePayment.paymentIntentId;
       } else if (data.paymentMethod === 'paypal') {
@@ -72,7 +72,7 @@ export function PaymentForm({ amount, currency = 'USD', bookingId, onSuccess, on
           crypto.randomUUID(),
           data.amount,
           data.currency,
-          { bookingId: bookingId || '', ...data.metadata }
+          { bookingId: bookingId || '' }
         );
         paymentId = paypalPayment.orderId;
       } else {

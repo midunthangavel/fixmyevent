@@ -10,7 +10,7 @@ import Image from "next/image";
 import { PageWrapper } from "@/components/shared/page-wrapper";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
-import { collection, query, where, getDocs, Timestamp, doc, updateDoc, arrayUnion, serverTimestamp, addDoc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, updateDoc, arrayUnion, serverTimestamp, addDoc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,7 +21,11 @@ import { useRouter } from "next/navigation";
 import { bookingService } from "@/services/bookings";
 import type { Booking } from "@/types/booking";
 
-// Using the new comprehensive Booking type from types/booking.ts
+// Extended booking interface for this component
+interface ExtendedBooking extends Booking {
+  venueId: string;
+  venueName: string;
+}
 
 interface ReviewData {
   rating: number;
@@ -31,7 +35,7 @@ interface ReviewData {
   createdAt: any; // Firestore timestamp
 }
 
-function ReviewDialog({ booking, onReviewSubmit }: { booking: Booking, onReviewSubmit: (bookingId: string, review: ReviewData) => void }) {
+function ReviewDialog({ booking, onReviewSubmit }: { booking: ExtendedBooking, onReviewSubmit: (bookingId: string, review: ReviewData) => void }) {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState("");
     const [open, setOpen] = useState(false);
@@ -57,6 +61,10 @@ function ReviewDialog({ booking, onReviewSubmit }: { booking: Booking, onReviewS
         }
 
         try {
+            if (!booking.id) {
+                throw new Error('Booking ID is required');
+            }
+            
             // Update booking with review
             const bookingRef = doc(db, "bookings", booking.id);
             await updateDoc(bookingRef, { review: reviewData });
@@ -172,8 +180,8 @@ function ReviewDialog({ booking, onReviewSubmit }: { booking: Booking, onReviewS
 function BookingsPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
-  const [pastBookings, setPastBookings] = useState<Booking[]>([]);
+  const [upcomingBookings, setUpcomingBookings] = useState<ExtendedBooking[]>([]);
+  const [pastBookings, setPastBookings] = useState<ExtendedBooking[]>([]);
   const [loading, setLoading] = useState(true);
 
       const handleReviewUpdate = (bookingId: string, review: ReviewData) => {
@@ -221,8 +229,8 @@ function BookingsPage() {
         const upcoming = bookings.filter(b => b.bookingDate && b.bookingDate.toDate() >= now);
         const past = bookings.filter(b => b.bookingDate && b.bookingDate.toDate() < now);
         
-        setUpcomingBookings(upcoming.sort((a, b) => a.bookingDate.toDate().getTime() - b.bookingDate.toDate().getTime()));
-        setPastBookings(past.sort((a, b) => b.bookingDate.toDate().getTime() - a.bookingDate.toDate().getTime()));
+        setUpcomingBookings(upcoming.sort((a, b) => a.bookingDate.toDate().getTime() - b.bookingDate.toDate().getTime()) as ExtendedBooking[]);
+        setPastBookings(past.sort((a, b) => b.bookingDate.toDate().getTime() - a.bookingDate.toDate().getTime()) as ExtendedBooking[]);
 
       } catch (error) {
         console.error("Error fetching bookings: ", error);
@@ -242,7 +250,7 @@ function BookingsPage() {
     )
   }
 
-  const BookingCard = ({ booking }: { booking: Booking }) => (
+  const BookingCard = ({ booking }: { booking: ExtendedBooking }) => (
     <Card>
         <div className="grid grid-cols-1 md:grid-cols-3">
             <div className="md:col-span-1">
@@ -279,7 +287,7 @@ function BookingsPage() {
     </Card>
   )
 
-  const PastBookingCard = ({ booking }: { booking: Booking }) => (
+  const PastBookingCard = ({ booking }: { booking: ExtendedBooking }) => (
      <Card className="opacity-80 hover:opacity-100 transition-opacity">
         <div className="grid grid-cols-1 md:grid-cols-3">
             <div className="md:col-span-1">

@@ -1,7 +1,7 @@
 // Enhanced AI service with real AI provider integration
 // This file should only be imported in API routes or server components
 
-import { z } from 'zod';
+// import { z } from 'zod';
 
 // AI Provider Configuration
 interface AIProviderConfig {
@@ -342,7 +342,7 @@ export class EnhancedAIService {
     };
   }
 
-  private getFallbackBudgetSuggestions(budget: number, eventType: string, guestCount: number) {
+  private getFallbackBudgetSuggestions(budget: number, _eventType: string, _guestCount: number) {
     return {
       breakdown: {
         venue: budget * 0.4,
@@ -420,17 +420,17 @@ export class EnhancedAIService {
   // Utility methods
   private extractNumber(text: string): number {
     const match = text.match(/(\d+)/);
-    return match ? parseInt(match[1]) : 50;
+    return match ? parseInt(match[1] || '50') : 50;
   }
 
   private extractBudget(text: string): number {
     const match = text.match(/\$(\d+)/);
-    return match ? parseInt(match[1]) : 5000;
+    return match ? parseInt(match[1] || '5000') : 5000;
   }
 
   private extractDate(text: string): string {
     const dateMatch = text.match(/(\d{1,2}\/\d{1,2}|\d{4}-\d{2}-\d{2}|tomorrow|next week|next month)/i);
-    return dateMatch ? dateMatch[1] : '';
+    return dateMatch ? dateMatch[1] || '' : '';
   }
 
   private extractStyle(text: string): string {

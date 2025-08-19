@@ -296,13 +296,16 @@ export const searchVenues = onCall(async (request) => {
     const venues: any[] = [];
 
     venuesSnapshot.forEach((doc) => {
-      const venue = { id: doc.id, ...doc.data() };
-      
-      // Simple text search in name, description, and tags
-      const searchableText = `${venue.name} ${venue.description} ${venue.tags?.join(' ') || ''}`.toLowerCase();
-      
-      if (searchableText.includes(query.toLowerCase())) {
-        venues.push(venue);
+      const venueData = doc.data();
+      if (venueData) {
+        const venue = { id: doc.id, ...venueData };
+        
+        // Simple text search in name, description, and tags
+        const searchableText = `${(venue as any).name || ''} ${(venue as any).description || ''} ${(venue as any).tags?.join(' ') || ''}`.toLowerCase();
+        
+        if (searchableText.includes(query.toLowerCase())) {
+          venues.push(venue);
+        }
       }
     });
 

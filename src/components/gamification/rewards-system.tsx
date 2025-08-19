@@ -1,28 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 import { 
   Trophy, 
-  Star, 
-  Gift, 
-  Target, 
+    Star,
+  Gift,
   TrendingUp, 
   Award,
   Zap,
   Heart,
-  Bookmark,
   MessageCircle,
   Calendar,
   Users,
   DollarSign,
   Crown,
-  Medal,
-  Ribbon,
   CheckCircle
 } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
@@ -82,7 +78,7 @@ export function RewardsSystem({ className = "" }: RewardsSystemProps) {
     lastActivity: new Date()
   });
 
-  const [achievements, setAchievements] = useLocalStorage<Achievement[]>('user-achievements', [
+  const [achievements] = useLocalStorage<Achievement[]>('user-achievements', [
     {
       id: 'first-booking',
       name: 'First Booking',
@@ -199,7 +195,6 @@ export function RewardsSystem({ className = "" }: RewardsSystemProps) {
   const levelProgress = ((userStats.currentLevelPoints / userStats.nextLevelPoints) * 100);
   const totalAchievements = achievements.length;
   const unlockedAchievements = achievements.filter(a => a.isUnlocked).length;
-  const totalPointsEarned = achievements.filter(a => a.isUnlocked).reduce((sum, a) => sum + a.points, 0);
 
   const getLevelTitle = (level: number) => {
     if (level >= 10) return 'Legendary';

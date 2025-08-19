@@ -8,10 +8,10 @@ import { Search, Store, Users, Building2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 
 export default function RoleSelectionPage() {
-  const [selectedRole, setSelectedRole] = useState<'user' | 'vendor' | null>(null);
+  const [_selectedRole, setSelectedRole] = useState<'user' | 'vendor' | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user, updateUserRole } = useAuth();
+  const { updateUserRole } = useAuth();
 
   const handleRoleSelection = async (role: 'user' | 'vendor') => {
     setSelectedRole(role);

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
@@ -36,7 +36,7 @@ export function ServiceDetailClient({ listing }: ServiceDetailClientProps) {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const handleBookingSuccess = (bookingId: string) => {
+  const handleBookingSuccess = (_bookingId: string) => {
     setShowBookingForm(false);
     toast({
       title: 'Booking Successful!',

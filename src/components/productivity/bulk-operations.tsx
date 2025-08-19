@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
-import { Checkbox } from '@/components/ui/checkbox'
+
 import { Upload, Download, FileText, Database, Users, Calendar, Settings, RotateCcw, CheckCircle, AlertCircle } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 
@@ -75,7 +75,7 @@ export function BulkOperations() {
   const [fileInput, setFileInput] = useState<File | null>(null)
   const [batchData, setBatchData] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedItems, setSelectedItems] = useState<string[]>([])
+
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Sample operations for demonstration

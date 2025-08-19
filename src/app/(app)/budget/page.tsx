@@ -9,7 +9,7 @@ import { useAuth } from '@/context/auth-context';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { PageWrapper } from '@/components/shared/page-wrapper';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -104,10 +104,13 @@ export default function BudgetPage() {
     const chartData = useMemo(() => {
         if (expenses.length === 0) return [];
         const categoryTotals = expenses.reduce((acc, expense) => {
-            if (!acc[expense.category]) {
-                acc[expense.category] = 0;
+            if (expense.category && expense.amount) {
+                const category = expense.category;
+                if (!acc[category]) {
+                    acc[category] = 0;
+                }
+                acc[category] += expense.amount;
             }
-            acc[expense.category] += expense.amount;
             return acc;
         }, {} as Record<string, number>);
 

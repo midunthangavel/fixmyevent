@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { aiService } from '@/ai/enhanced-ai-service';
+import { aiService } from '@/ai/ai-service';
 import { handleAPIError, validateRequiredFields, validateFieldType, validateNumberRange } from '@/lib/api-utils';
 
 export async function POST(request: NextRequest) {

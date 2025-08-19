@@ -29,7 +29,7 @@ import {
   Loader,
   Image as ImageIcon,
 } from 'lucide-react';
-import { FormSchema, type SuggestEventIdeasOutput, type FormValues } from '@/ai/flows/suggest-event-ideas.types';
+import { FormSchema, type FormValues } from '@/ai/flows/suggest-event-ideas.types';
 import { Separator } from '@/components/ui/separator';
 import { PageWrapper } from '@/components/shared/page-wrapper';
 import { useToast } from '@/hooks/use-toast';
@@ -39,9 +39,9 @@ import Image from 'next/image';
 
 export default function PlannerPage() {
   const { toast } = useToast();
-  const { generateEventIdeas, generateMoodBoard, loading: aiLoading } = useAI();
+  const { generateEventIdeas, generateMoodBoard } = useAI();
   const {
-    state: { loading, ideas, isMoodBoardLoading, moodBoardImage },
+    state: { loading, ideas, moodBoardLoading, moodBoardImage },
     setLoading,
     setIdeas,
     setMoodBoardLoading,
@@ -66,7 +66,10 @@ export default function PlannerPage() {
     clearMoodBoard();
     
     try {
-      const result = await generateEventIdeas(values);
+      const result = await generateEventIdeas({
+        ...values,
+        additionalInfo: values.additionalInfo || '',
+      });
       setIdeas(result);
     } catch (error) {
       console.error('Error generating event ideas:', error);
@@ -244,8 +247,8 @@ export default function PlannerPage() {
                   </div>
                 </CardContent>
                 <CardFooter className='flex-col gap-3 items-stretch'>
-                   <Button onClick={handleGenerateMoodboard} disabled={isMoodBoardLoading} size="sm">
-                    {isMoodBoardLoading ? (
+                                   <Button onClick={handleGenerateMoodboard} disabled={moodBoardLoading} size="sm">
+                  {moodBoardLoading ? (
                         <>
                             <Loader className="mr-2 h-4 w-4 animate-spin" />
                             Generating...
@@ -264,7 +267,7 @@ export default function PlannerPage() {
               </Card>
             )}
 
-            {isMoodBoardLoading && (
+                            {moodBoardLoading && (
                  <Card>
                     <CardContent className="p-6 text-center">
                         <Loader className="h-6 w-6 animate-spin text-primary mx-auto mb-3" />

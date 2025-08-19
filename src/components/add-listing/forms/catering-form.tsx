@@ -87,7 +87,7 @@ export function CateringForm() {
                         <RadioGroupField
                             name="serviceType"
                             label="Service Type"
-                            options={CATERING_SERVICE_TYPES}
+                            options={[...CATERING_SERVICE_TYPES]}
                             required
                         />
                     </div>
@@ -103,14 +103,14 @@ export function CateringForm() {
                 <CheckboxGroupField
                     name="cuisineTypes"
                     label="Cuisine Types Offered"
-                    options={CUISINE_TYPES}
+                    options={[...CUISINE_TYPES]}
                     columns={2}
                 />
                 
                 <CheckboxGroupField
                     name="dietaryOptions"
                     label="Dietary Accommodations"
-                    options={DIETARY_OPTIONS}
+                    options={[...DIETARY_OPTIONS]}
                     columns={2}
                 />
             </FormSection>
@@ -150,7 +150,7 @@ export function CateringForm() {
                 title="Media" 
                 description="Showcase your work with photos of your food and events."
             >
-                <FileUploader />
+                <FileUploader onFileSelect={() => {}} />
             </FormSection>
         </div>
     );

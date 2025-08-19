@@ -6,8 +6,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import { VenueCard } from "@/components/venue-card";
-import { cn } from "@/lib/utils";
-import { ArrowRight, Plus } from "lucide-react";
+
+import { Plus } from "lucide-react";
 import type { Listing } from "@/services/listings";
 
 export const VenueSection = ({ title, venues, moreLink }: { title: string, venues: Listing[], moreLink?: string }) => {
@@ -33,13 +33,23 @@ export const VenueSection = ({ title, venues, moreLink }: { title: string, venue
                         dragFree: true,
                      }}>
                         <CarouselContent>
-                            {venues.map((venue, index) => (
+                            {venues.map((venue) => (
                                 <CarouselItem key={venue.slug} className="basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
                                     <div className="p-2">
                                         <VenueCard
                                             {...venue}
                                             isCard
                                             imageClassName="h-32 sm:h-40 lg:h-48"
+                                            location={venue.location || 'Location not specified'}
+                                            rating={venue.rating || 0}
+                                            reviewCount={venue.reviewCount || 0}
+                                            price={venue.price || 'Price not specified'}
+                                            image={venue.image || ''}
+                                            hint={venue.hint || ''}
+                                            category={venue.category || 'Venue'}
+                                            guestCapacity={venue.guestCapacity || 1}
+                                            amenities={venue.amenities || {}}
+                                            guestFavorite={venue.guestFavorite || false}
                                         />
                                     </div>
                                 </CarouselItem>

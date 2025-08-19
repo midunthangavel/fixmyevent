@@ -10,11 +10,11 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/auth-context';
+
 
 export function Footer() {
   const pathname = usePathname();
-  const { user } = useAuth();
+
   
   const navItems = [
     {

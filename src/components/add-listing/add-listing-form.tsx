@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { listingSchema, Category, ListingFormValues } from '@/types/listing';
 import { useAuth } from '@/context/auth-context';
 // Removed Firebase imports for demo mode
@@ -17,51 +17,50 @@ import { useRouter } from 'next/navigation';
 // Lazy load forms to improve initial page load
 import dynamic from 'next/dynamic';
 import { Loader } from 'lucide-react';
-import { Separator } from '../ui/separator';
+
 const LoadingComponent = () => <div className='flex justify-center items-center py-10'><Loader className='animate-spin' /></div>;
 
 // Simplified dynamic imports without promise chains
-const VenueForm = dynamic(() => import('./forms/venue-form'), { 
+const VenueForm = dynamic(() => import('./forms/venue-form').then(mod => ({ default: mod.VenueForm })), {
+  loading: LoadingComponent,
+  ssr: false
+});
+const CateringForm = dynamic(() => import('./forms/catering-form').then(mod => ({ default: mod.CateringForm })), { 
   loading: LoadingComponent,
   ssr: false 
 });
-const CateringForm = dynamic(() => import('./forms/catering-form'), { 
+const PhotographyForm = dynamic(() => import('./forms/photography-form').then(mod => ({ default: mod.PhotographyForm })), { 
   loading: LoadingComponent,
   ssr: false 
 });
-const PhotographyForm = dynamic(() => import('./forms/photography-form'), { 
+const MusicForm = dynamic(() => import('./forms/music-form').then(mod => ({ default: mod.MusicForm })), { 
   loading: LoadingComponent,
   ssr: false 
 });
-const MusicForm = dynamic(() => import('./forms/music-form'), { 
+const DecorationsForm = dynamic(() => import('./forms/decorations-form').then(mod => ({ default: mod.DecorationsForm })), { 
   loading: LoadingComponent,
   ssr: false 
 });
-const DecorationsForm = dynamic(() => import('./forms/decorations-form'), { 
+const TransportForm = dynamic(() => import('./forms/transport-form').then(mod => ({ default: mod.TransportForm })), { 
   loading: LoadingComponent,
   ssr: false 
 });
-const TransportForm = dynamic(() => import('./forms/transport-form'), { 
+const InvitationsForm = dynamic(() => import('./forms/invitations-form').then(mod => ({ default: mod.InvitationsForm })), { 
   loading: LoadingComponent,
   ssr: false 
 });
-const InvitationsForm = dynamic(() => import('./forms/invitations-form'), { 
+const LegalForm = dynamic(() => import('./forms/legal-form').then(mod => ({ default: mod.LegalForm })), { 
   loading: LoadingComponent,
   ssr: false 
 });
-const LegalForm = dynamic(() => import('./forms/legal-form'), { 
-  loading: LoadingComponent,
-  ssr: false 
-});
-const PlannerForm = dynamic(() => import('./forms/planner-form'), { 
+const PlannerForm = dynamic(() => import('./forms/planner-form').then(mod => ({ default: mod.PlannerForm })), { 
   loading: LoadingComponent,
   ssr: false 
 });
 
 // Define proper types for form components
 interface FormComponentProps {
-  category: Category;
-  onCategoryChange?: (category: Category) => void;
+  // Forms don't currently accept props, but interface is kept for future extensibility
 }
 
 const categories: { value: Category; label: string }[] = [
@@ -99,7 +98,7 @@ export function AddListingForm() {
     const form = useForm({
         resolver: zodResolver(listingSchema),
         defaultValues: {
-            category: undefined,
+            category: 'Venue' as Category,
             name: '',
             email: user?.email || '',
             phone: '',
@@ -123,14 +122,36 @@ export function AddListingForm() {
         const category = value as Category;
         setSelectedCategory(category);
         form.setValue('category', category);
-        form.reset({
+        
+        // Reset form with appropriate default values for the category
+        const defaultValues = {
             category,
             name: '',
             email: user?.email || '',
             phone: '',
             address: '',
             description: '',
-        });
+            slug: '',
+            location: '',
+            image: '',
+            hint: '',
+            rating: 0,
+            reviewCount: 0,
+            price: '',
+            priceValue: 0,
+            guestFavorite: false,
+            ownerId: user?.uid,
+        };
+
+        // Add category-specific required fields
+        if (category === 'Venue') {
+            form.reset({
+                ...defaultValues,
+                guestCapacity: 1,
+            } as any);
+        } else {
+            form.reset(defaultValues as any);
+        }
     };
 
     async function onSubmit(values: ListingFormValues) {
@@ -239,7 +260,7 @@ export function AddListingForm() {
                             <CardDescription>Please provide the specific details for your {selectedCategory?.toLowerCase()} service.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <SelectedForm category={selectedCategory} />
+                            <SelectedForm />
                         </CardContent>
                     </Card>
                 )}

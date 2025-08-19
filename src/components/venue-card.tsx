@@ -46,9 +46,9 @@ export function VenueCard({
     slug,
     description: hint || '',
     location: {
-      address: location || '',
-      city: location?.split(',')[0]?.trim() || '',
-      state: location?.split(',')[1]?.trim() || '',
+      address: location || 'Location not specified',
+      city: location?.split(',')[0]?.trim() || 'City not specified',
+      state: location?.split(',')[1]?.trim() || 'State not specified',
       zipCode: '',
     },
     images: image ? [image] : [],

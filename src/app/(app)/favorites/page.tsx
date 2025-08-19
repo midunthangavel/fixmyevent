@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, HeartOff, Search, Filter, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
+
 
 export default function FavoritesPage() {
-  const { favorites, toggleFavorite, isFavorited } = useFavorites();
+  const { favorites, toggleFavorite } = useFavorites();
   const router = useRouter();
 
   const handleVenuePress = (venueId: string) => {
@@ -106,18 +106,80 @@ export default function FavoritesPage() {
                 id: favorite.slug,
                 name: favorite.name,
                 description: favorite.description,
-                category: favorite.category,
-                images: favorite.image ? [favorite.image] : [],
+                category: 'WEDDING', // Map to a valid event category
+                images: favorite.image ? [{
+                  id: '1',
+                  url: favorite.image,
+                  alt: favorite.name,
+                  caption: favorite.description,
+                  order: 1,
+                  isPrimary: true
+                }] : [],
                 pricing: {
                   currency: 'USD',
-                  minPrice: favorite.priceValue || 0,
-                  maxPrice: favorite.priceValue || 0,
+                  hourly: favorite.priceValue || 0,
+                  daily: favorite.priceValue || 0,
                 },
-                amenities: favorite.amenities || {},
+                amenities: {
+                  PARKING: true,
+                  WIFI: true,
+                  CATERING: false,
+                  AUDIO_VISUAL: false,
+                  STAGE: false,
+                  DANCE_FLOOR: false,
+                  BAR: false,
+                  RESTROOMS: true,
+                  ACCESSIBILITY: true,
+                  OUTDOOR_SPACE: false,
+                  KITCHEN: false,
+                  SECURITY: false,
+                  VALET: false,
+                  TRANSPORTATION: false,
+                },
                 rating: favorite.rating || 0,
                 reviewCount: favorite.reviewCount || 0,
-                location: favorite.location || '',
+                location: {
+                  address: favorite.location || '',
+                  city: '',
+                  state: '',
+                  zipCode: '',
+                  country: '',
+                },
                 slug: favorite.slug,
+                capacity: {
+                  min: 1,
+                  max: 100,
+                },
+                availability: {
+                  startDate: '',
+                  endDate: '',
+                  availableDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+                  availableHours: {
+                    start: '09:00',
+                    end: '18:00',
+                  },
+                },
+                owner: {
+                  id: 'owner-1',
+                  name: 'Owner',
+                  email: 'owner@example.com',
+                  verified: false,
+                  createdAt: '',
+                  updatedAt: '',
+                },
+                status: 'active',
+                featured: false,
+                verified: false,
+                tags: [],
+                shortDescription: favorite.description,
+                subcategories: [],
+                contactInfo: {
+                  email: 'contact@example.com',
+                  phone: '+1234567890',
+                  preferredContact: 'email',
+                },
+                createdAt: '',
+                updatedAt: '',
               }}
               variant="default"
               showActions={true}

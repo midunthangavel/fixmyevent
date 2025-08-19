@@ -11,7 +11,7 @@ import {
   Risk,
   MitigationStrategy
 } from '@/types/productivity';
-import { costOptimizedAIService } from '@/ai/enhanced-ai-service';
+// import { costOptimizedAIService } from '@/ai/enhanced-ai-service';
 
 export interface EventPlanningRequest {
   eventType: string;

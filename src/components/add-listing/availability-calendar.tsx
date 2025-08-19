@@ -30,9 +30,6 @@ export function AvailabilityCalendar({ onUpdate }: AvailabilityCalendarProps) {
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        const updateState = (setter: React.Dispatch<React.SetStateAction<Date[]>>, newDates: Date[]) => {
-            setter(prev => [...prev.filter(d => !datesInRange.some(nd => nd.getTime() === d.getTime())), ...newDates]);
-        };
         const removeState = (setter: React.Dispatch<React.SetStateAction<Date[]>>) => {
              setter(prev => prev.filter(d => !datesInRange.some(nd => nd.getTime() === d.getTime())));
         }

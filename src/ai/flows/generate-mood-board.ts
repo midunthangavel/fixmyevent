@@ -6,7 +6,7 @@
  * - generateMoodBoard: A function that generates an image based on a text prompt.
  */
 
-import { GenerateMoodBoardInput, GenerateMoodBoardInputSchema, GenerateMoodBoardOutput, GenerateMoodBoardOutputSchema } from './generate-mood-board.types';
+import { GenerateMoodBoardInput, GenerateMoodBoardOutput } from './generate-mood-board.types';
 
 // This function now works with the AI service through API routes
 export async function generateMoodBoard(input: GenerateMoodBoardInput): Promise<GenerateMoodBoardOutput> {

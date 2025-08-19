@@ -109,6 +109,161 @@ export class AIService {
       throw new Error('Failed to search venues');
     }
   }
+
+  /**
+   * Get AI-powered budget optimization
+   */
+  async getAIBudgetOptimization(budget: number, eventType: string, guestCount: number, location: string) {
+    try {
+      // Mock response for development
+      return {
+        optimizedBudget: {
+          venue: Math.round(budget * 0.4),
+          catering: Math.round(budget * 0.3),
+          entertainment: Math.round(budget * 0.15),
+          decor: Math.round(budget * 0.1),
+          miscellaneous: Math.round(budget * 0.05)
+        },
+        recommendations: [
+          `Consider ${eventType} venues in ${location} during off-peak seasons for better rates`,
+          `For ${guestCount} guests, buffet-style catering can be more cost-effective`,
+          `DIY decorations can save 20-30% on decor costs`,
+          `Package deals often provide better value than booking services separately`
+        ],
+        costSavingTips: [
+          'Book venues 6-12 months in advance',
+          'Negotiate with vendors for bulk discounts',
+          'Consider weekday events for lower rates',
+          'Use seasonal flowers and local produce'
+        ]
+      };
+    } catch (error) {
+      console.error('Error getting AI budget optimization:', error);
+      throw new Error('Failed to get AI budget optimization');
+    }
+  }
+
+  /**
+   * Process natural language search queries
+   */
+  async processNaturalLanguageQuery(query: string) {
+    try {
+      // Mock response for development
+      return {
+        parsedQuery: {
+          keywords: query.toLowerCase().split(' ').filter(word => word.length > 2),
+          location: this.extractLocation(query),
+          eventType: this.extractEventType(query),
+          guestCount: this.extractGuestCount(query),
+          budget: this.extractBudget(query)
+        },
+        searchFilters: {
+          category: this.suggestCategory(query),
+          amenities: this.suggestAmenities(query),
+          date: this.extractDate(query)
+        }
+      };
+    } catch (error) {
+      console.error('Error processing natural language query:', error);
+      throw new Error('Failed to process natural language query');
+    }
+  }
+
+  private extractLocation(query: string): string {
+    // Simple location extraction - in production, use NLP libraries
+    const locationKeywords = ['in', 'at', 'near', 'around'];
+    const words = query.split(' ');
+    for (let i = 0; i < words.length - 1; i++) {
+      if (locationKeywords.includes(words[i]?.toLowerCase() || '')) {
+        return words[i + 1] || '';
+      }
+    }
+    return '';
+  }
+
+  private extractEventType(query: string): string {
+    const eventTypes = ['wedding', 'birthday', 'corporate', 'party', 'celebration', 'meeting'];
+    const queryLower = query.toLowerCase();
+    return eventTypes.find(type => queryLower.includes(type)) || '';
+  }
+
+  private extractGuestCount(query: string): number {
+    const match = query.match(/(\d+)\s*(?:guests?|people|attendees?)/i);
+    return match && match[1] ? parseInt(match[1]) : 0;
+  }
+
+  private extractBudget(query: string): number {
+    const match = query.match(/\$(\d+)/);
+    return match && match[1] ? parseInt(match[1]) : 0;
+  }
+
+  private suggestCategory(query: string): string {
+    const categories = ['Venue', 'Catering', 'Decorations', 'Photography', 'Music', 'Transport'];
+    const queryLower = query.toLowerCase();
+    return categories.find(category => queryLower.includes(category.toLowerCase())) || 'Venue';
+  }
+
+  private suggestAmenities(query: string): string[] {
+    const amenities = ['parking', 'wifi', 'kitchen', 'outdoor', 'indoor', 'parking'];
+    const queryLower = query.toLowerCase();
+    return amenities.filter(amenity => queryLower.includes(amenity));
+  }
+
+  private extractDate(query: string): string {
+    // Simple date extraction - in production, use date parsing libraries
+    const dateKeywords = ['today', 'tomorrow', 'next week', 'next month'];
+    const queryLower = query.toLowerCase();
+    return dateKeywords.find(date => queryLower.includes(date)) || '';
+  }
+
+  /**
+   * Get smart venue recommendations
+   */
+  async getSmartVenueRecommendations(criteria: {
+    location: string;
+    eventType: string;
+    guestCount: number;
+    budget: number;
+    date: string;
+    preferences?: string[];
+    style?: string;
+  }) {
+    try {
+      // Mock response for development
+      return {
+        venues: [
+          {
+            name: `Perfect ${criteria.eventType} Venue`,
+            location: criteria.location,
+            capacity: criteria.guestCount,
+            price: Math.round(criteria.budget * 0.4),
+            rating: 4.8,
+            features: ['Parking', 'Kitchen', 'Outdoor Space', 'WiFi'],
+            description: `Ideal ${criteria.eventType} venue in ${criteria.location} with capacity for ${criteria.guestCount} guests.`,
+            availability: criteria.date
+          },
+          {
+            name: `Elegant ${criteria.eventType} Hall`,
+            location: criteria.location,
+            capacity: criteria.guestCount + 20,
+            price: Math.round(criteria.budget * 0.5),
+            rating: 4.6,
+            features: ['Full Catering', 'Audio/Visual', 'Dance Floor', 'Bar Service'],
+            description: `Sophisticated venue perfect for ${criteria.eventType} events with premium amenities.`,
+            availability: criteria.date
+          }
+        ],
+        recommendations: [
+          `Consider booking ${criteria.date} for better availability and rates`,
+          `For ${criteria.guestCount} guests, venues with ${criteria.guestCount + 20} capacity offer flexibility`,
+          `Budget allocation: 40-50% for venue, remaining for other services`
+        ]
+      };
+    } catch (error) {
+      console.error('Error getting smart venue recommendations:', error);
+      throw new Error('Failed to get smart venue recommendations');
+    }
+  }
 }
 
 // Export a singleton instance

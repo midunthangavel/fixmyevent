@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Search, Menu, X, User, Bell, Settings } from 'lucide-react'
+import { Search, Menu, X, User, Bell } from 'lucide-react'
 import { AppLogo } from '@/components/shared/app-logo'
 import { EnhancedThemeToggle } from './enhanced-theme-toggle'
 import { Badge } from '@/components/ui/badge'

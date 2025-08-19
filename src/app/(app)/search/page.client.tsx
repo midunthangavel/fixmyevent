@@ -3,10 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Filter, MapPin, Users, DollarSign } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { VenueCard } from '@/components/venue-card';
 import { Filters } from '@/components/search/filters';
@@ -172,7 +172,20 @@ export function SearchPageClient({ initialListings, hasSearched, searchParams }:
             
             <div className="grid grid-cols-1 gap-6">
               {listings.map((listing) => (
-                <VenueCard key={listing.slug} {...listing} />
+                <VenueCard 
+                  key={listing.slug} 
+                  {...listing} 
+                  location={listing.location || 'Location not specified'}
+                  rating={listing.rating || 0}
+                  reviewCount={listing.reviewCount || 0}
+                  price={listing.price || 'Price not specified'}
+                  image={listing.image || ''}
+                  hint={listing.hint || ''}
+                  category={listing.category || 'Venue'}
+                  guestCapacity={listing.guestCapacity || 1}
+                  amenities={listing.amenities || {}}
+                  guestFavorite={listing.guestFavorite || false}
+                />
               ))}
             </div>
           </>

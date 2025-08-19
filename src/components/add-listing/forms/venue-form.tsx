@@ -77,7 +77,7 @@ export function VenueForm() {
                 <CheckboxGroupField
                     name="amenities"
                     label="Amenities"
-                    options={VENUE_AMENITIES}
+                    options={[...VENUE_AMENITIES]}
                     columns={3}
                 />
                 
@@ -95,8 +95,8 @@ export function VenueForm() {
                 title="Media & Availability" 
                 description="Add photos of your venue and set your availability calendar."
             >
-                <FileUploader />
-                <AvailabilityCalendar />
+                <FileUploader onFileSelect={() => {}} />
+                <AvailabilityCalendar onUpdate={() => {}} />
             </FormSection>
         </div>
     );

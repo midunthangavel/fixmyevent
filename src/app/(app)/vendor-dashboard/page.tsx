@@ -8,7 +8,7 @@ import {
   Store, 
   Plus, 
   Calendar, 
-  Users, 
+ 
   TrendingUp, 
   Star, 
   MessageSquare,

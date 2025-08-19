@@ -93,7 +93,7 @@ export function calculateTotalCost(ideas: EventIdea[]): number {
   return ideas.reduce((total, idea) => total + idea.estimatedCost, 0);
 }
 
-export function generateRecommendations(preferences: EventIdeaPreferences, ideas: EventIdea[]): string[] {
+export function generateRecommendations(preferences: EventIdeaPreferences, _ideas: EventIdea[]): string[] {
   const recommendations: string[] = [];
   
   if (preferences.budget < 1000) {

@@ -6,7 +6,7 @@
  * - chat: A function that responds to user messages, with the ability to use tools.
  */
 
-import { ChatInput, ChatInputSchema, ChatOutput, ChatOutputSchema } from './chat.types';
+import { ChatInput, ChatOutput } from './chat.types';
 
 // This function now works with the AI service through API routes
 export async function chat(input: ChatInput): Promise<ChatOutput> {

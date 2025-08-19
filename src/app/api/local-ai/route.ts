@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       response: generateFallbackResponse(''),
       source: 'fallback',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 }
