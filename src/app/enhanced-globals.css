@@ -1,0 +1,594 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Enhanced Theme Variables */
+:root {
+  --font-size-base: 1rem;
+  --contrast-multiplier: 1;
+  --transition-duration: 0.2s;
+  --border-radius: 0.5rem;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Font Size Classes */
+.text-small {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-medium {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.text-large {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.text-x-large {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+/* Contrast Classes */
+.contrast-normal {
+  --contrast-multiplier: 1;
+}
+
+.contrast-high {
+  --contrast-multiplier: 1.2;
+}
+
+.contrast-ultra-high {
+  --contrast-multiplier: 1.5;
+}
+
+/* Accessibility Features */
+.motion-reduce *,
+.motion-reduce *::before,
+.motion-reduce *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.high-contrast {
+  --contrast-multiplier: 1.3;
+}
+
+.high-contrast .bg-gray-100 {
+  background-color: rgb(0 0 0);
+}
+
+.high-contrast .text-gray-600 {
+  color: rgb(0 0 0);
+}
+
+.high-contrast .border-gray-200 {
+  border-color: rgb(0 0 0);
+}
+
+.show-focus *:focus {
+  outline: 3px solid rgb(59 130 246);
+  outline-offset: 2px;
+}
+
+/* Enhanced Dark Theme */
+.dark {
+  --bg-primary: rgb(15 23 42);
+  --bg-secondary: rgb(30 41 59);
+  --bg-tertiary: rgb(51 65 85);
+  --text-primary: rgb(248 250 252);
+  --text-secondary: rgb(203 213 225);
+  --text-muted: rgb(148 163 184);
+  --border-primary: rgb(51 65 85);
+  --border-secondary: rgb(71 85 105);
+  --accent-primary: rgb(59 130 246);
+  --accent-secondary: rgb(147 197 253);
+}
+
+/* Modern Black Dark Theme */
+.dark {
+  background-color: rgb(0 0 0);
+  color: rgb(255 255 255);
+}
+
+.dark .bg-slate-900 {
+  background-color: rgb(0 0 0);
+}
+
+.dark .bg-slate-800 {
+  background-color: rgb(10 10 10);
+}
+
+.dark .border-slate-800 {
+  border-color: rgb(20 20 20);
+}
+
+/* Enhanced Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 1s infinite;
+}
+
+/* Enhanced Focus States */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
+}
+
+.focus-ring-accessible {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-4 dark:focus:ring-offset-gray-900;
+}
+
+/* Enhanced Button Styles */
+.btn-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+  @apply hover:scale-105 active:scale-95;
+  @apply focus-ring;
+}
+
+.btn-enhanced:disabled {
+  @apply hover:scale-100 active:scale-100;
+}
+
+/* Enhanced Card Styles */
+.card-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+  @apply hover:shadow-lg hover:-translate-y-1;
+  @apply border border-gray-200 dark:border-gray-800;
+  @apply bg-white dark:bg-gray-900;
+}
+
+.card-enhanced:hover {
+  @apply border-gray-300 dark:border-gray-700;
+}
+
+/* Enhanced Input Styles */
+.input-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply dark:focus:ring-blue-400 dark:focus:border-blue-400;
+}
+
+/* Enhanced Link Styles */
+.link-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+  @apply hover:text-blue-600 dark:hover:text-blue-400;
+  @apply focus-ring;
+}
+
+/* Enhanced Badge Styles */
+.badge-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+  @apply hover:scale-105;
+  @apply cursor-pointer;
+}
+
+/* Enhanced Avatar Styles */
+.avatar-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+  @apply hover:scale-110;
+  @apply ring-2 ring-gray-200 dark:ring-gray-700;
+}
+
+/* Enhanced Progress Bar */
+.progress-enhanced {
+  @apply transition-all duration-300 ease-in-out;
+  @apply bg-gradient-to-r from-blue-500 to-purple-500;
+}
+
+/* Enhanced Loading States */
+.loading-skeleton {
+  @apply animate-pulse bg-gray-200 dark:bg-gray-700;
+  @apply rounded;
+}
+
+.loading-spinner {
+  @apply animate-spin;
+  @apply border-2 border-gray-300 border-t-blue-500;
+  @apply rounded-full;
+}
+
+/* Enhanced Scrollbar */
+.scrollbar-enhanced {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(156 163 175) transparent;
+}
+
+.scrollbar-enhanced::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-enhanced::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-enhanced::-webkit-scrollbar-thumb {
+  background-color: rgb(156 163 175);
+  border-radius: 3px;
+}
+
+.scrollbar-enhanced::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(107 114 128);
+}
+
+/* Enhanced Mobile Styles */
+@media (max-width: 640px) {
+  .mobile-optimized {
+    @apply px-4 py-3;
+  }
+  
+  .mobile-text {
+    @apply text-sm;
+  }
+  
+  .mobile-spacing {
+    @apply space-y-4;
+  }
+}
+
+/* Enhanced Tablet Styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .tablet-optimized {
+    @apply px-6 py-4;
+  }
+  
+  .tablet-grid {
+    @apply grid-cols-2;
+  }
+}
+
+/* Enhanced Desktop Styles */
+@media (min-width: 1025px) {
+  .desktop-optimized {
+    @apply px-8 py-6;
+  }
+  
+  .desktop-grid {
+    @apply grid-cols-3;
+  }
+  
+  .desktop-sidebar {
+    @apply w-80;
+  }
+}
+
+/* Enhanced Print Styles */
+@media print {
+  .print-hidden {
+    display: none !important;
+  }
+  
+  .print-optimized {
+    @apply text-black bg-white;
+    @apply border border-gray-300;
+  }
+}
+
+/* Enhanced High Contrast Mode */
+@media (prefers-contrast: high) {
+  .high-contrast-mode {
+    --contrast-multiplier: 1.5;
+  }
+  
+  .high-contrast-mode * {
+    border-width: 2px;
+  }
+}
+
+/* Enhanced Reduced Motion Mode */
+@media (prefers-reduced-motion: reduce) {
+  .reduced-motion {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Enhanced Dark Mode Detection */
+@media (prefers-color-scheme: dark) {
+  .auto-dark {
+    @apply dark;
+  }
+}
+
+/* Enhanced Light Mode Detection */
+@media (prefers-color-scheme: light) {
+  .auto-light {
+    @apply light;
+  }
+}
+
+/* Enhanced Accessibility Utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Enhanced Focus Visible */
+.focus-visible {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Enhanced Skip Links */
+.skip-link {
+  @apply absolute -top-10 left-6 z-50;
+  @apply bg-blue-600 text-white px-4 py-2 rounded;
+  @apply focus:top-6;
+}
+
+/* Enhanced Form Styles */
+.form-enhanced {
+  @apply space-y-6;
+}
+
+.form-group {
+  @apply space-y-2;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md;
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply dark:bg-gray-800 dark:border-gray-600 dark:text-white;
+  @apply dark:focus:ring-blue-400 dark:focus:border-blue-400;
+}
+
+.form-error {
+  @apply text-sm text-red-600 dark:text-red-400;
+}
+
+.form-help {
+  @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+/* Enhanced Table Styles */
+.table-enhanced {
+  @apply w-full border-collapse;
+}
+
+.table-enhanced th {
+  @apply px-4 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300;
+  @apply bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700;
+}
+
+.table-enhanced td {
+  @apply px-4 py-3 text-sm text-gray-900 dark:text-gray-100;
+  @apply border-b border-gray-200 dark:border-gray-700;
+}
+
+.table-enhanced tr:hover {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+/* Enhanced Modal Styles */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50;
+  @apply flex items-center justify-center p-4;
+  @apply z-50;
+}
+
+.modal-content {
+  @apply bg-white dark:bg-gray-900 rounded-lg shadow-xl;
+  @apply max-w-md w-full max-h-full overflow-auto;
+  @apply animate-fade-in;
+}
+
+/* Enhanced Toast Styles */
+.toast-container {
+  @apply fixed top-4 right-4 z-50;
+  @apply space-y-2;
+}
+
+.toast {
+  @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700;
+  @apply rounded-lg shadow-lg p-4;
+  @apply animate-slide-in;
+}
+
+/* Enhanced Tooltip Styles */
+.tooltip {
+  @apply absolute z-10 px-2 py-1 text-sm text-white bg-gray-900 rounded;
+  @apply opacity-0 pointer-events-none transition-opacity duration-200;
+}
+
+.tooltip-trigger:hover .tooltip {
+  @apply opacity-100;
+}
+
+/* Enhanced Dropdown Styles */
+.dropdown-menu {
+  @apply absolute z-10 mt-2 w-48 bg-white dark:bg-gray-900 rounded-md shadow-lg;
+  @apply border border-gray-200 dark:border-gray-700;
+  @apply animate-fade-in;
+}
+
+.dropdown-item {
+  @apply block w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300;
+  @apply hover:bg-gray-100 dark:hover:bg-gray-800;
+  @apply cursor-pointer;
+}
+
+/* Enhanced Pagination Styles */
+.pagination {
+  @apply flex items-center space-x-1;
+}
+
+.pagination-item {
+  @apply px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300;
+  @apply hover:bg-gray-50 hover:text-gray-700;
+  @apply dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400;
+  @apply dark:hover:bg-gray-700 dark:hover:text-gray-300;
+}
+
+.pagination-item.active {
+  @apply z-10 bg-blue-50 border-blue-500 text-blue-600;
+  @apply dark:bg-blue-900/20 dark:border-blue-400 dark:text-blue-400;
+}
+
+/* Enhanced Breadcrumb Styles */
+.breadcrumb {
+  @apply flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400;
+}
+
+.breadcrumb-item {
+  @apply hover:text-gray-700 dark:hover:text-gray-300;
+}
+
+.breadcrumb-separator {
+  @apply text-gray-400 dark:text-gray-600;
+}
+
+/* Enhanced Status Styles */
+.status-success {
+  @apply text-green-600 dark:text-green-400;
+}
+
+.status-warning {
+  @apply text-yellow-600 dark:text-yellow-400;
+}
+
+.status-error {
+  @apply text-red-600 dark:text-red-400;
+}
+
+.status-info {
+  @apply text-blue-600 dark:text-blue-400;
+}
+
+/* Enhanced Loading States */
+.loading-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.loading-spinner-large {
+  @apply w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin;
+}
+
+/* Enhanced Empty States */
+.empty-state {
+  @apply text-center py-12;
+}
+
+.empty-state-icon {
+  @apply mx-auto h-12 w-12 text-gray-400;
+}
+
+.empty-state-title {
+  @apply mt-2 text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.empty-state-description {
+  @apply mt-1 text-sm text-gray-500 dark:text-gray-400;
+}
+
+/* Enhanced Error States */
+.error-state {
+  @apply text-center py-12;
+}
+
+.error-state-icon {
+  @apply mx-auto h-12 w-12 text-red-400;
+}
+
+.error-state-title {
+  @apply mt-2 text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.error-state-description {
+  @apply mt-1 text-sm text-gray-500 dark:text-gray-400;
+}
+
+/* Enhanced Success States */
+.success-state {
+  @apply text-center py-12;
+}
+
+.success-state-icon {
+  @apply mx-auto h-12 w-12 text-green-400;
+}
+
+.success-state-title {
+  @apply mt-2 text-sm font-medium text-gray-900 dark:text-white;
+}
+
+.success-state-description {
+  @apply mt-1 text-sm text-gray-500 dark:text-gray-400;
+}
