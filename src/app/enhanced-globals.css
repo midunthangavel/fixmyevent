@@ -351,7 +351,9 @@
 /* Enhanced Light Mode Detection */
 @media (prefers-color-scheme: light) {
   .auto-light {
-    @apply light;
+    color-scheme: light;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 

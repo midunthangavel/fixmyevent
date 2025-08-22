@@ -4,14 +4,24 @@ const nextConfig: NextConfig = {
   // Disable strict mode in development to prevent double rendering
   reactStrictMode: process.env.NODE_ENV === 'production',
 
-  // Enable SWC minification for better performance
-  swcMinify: true,
-
   // Configure experimental features
   experimental: {
-    // Enable app directory
+    // Enable app directory (if needed for Next.js < 13.4)
     appDir: true,
   },
+
+  // Server external packages configuration (moved from experimental)
+  serverExternalPackages: [
+    '@genkit-ai/core',
+    '@genkit-ai/googleai',
+    '@genkit-ai/firebase',
+    '@genkit-ai/next',
+    'genkit',
+    '@opentelemetry/sdk-node',
+    '@opentelemetry/exporter-jaeger',
+    'handlebars',
+    'dotprompt',
+  ],
 
   // Simplified webpack configuration
   webpack: (config, { isServer }) => {
@@ -44,21 +54,6 @@ const nextConfig: NextConfig = {
     }
 
     return config;
-  },
-
-  // Server external packages configuration
-  experimental: {
-    serverComponentsExternalPackages: [
-      '@genkit-ai/core',
-      '@genkit-ai/googleai',
-      '@genkit-ai/firebase',
-      '@genkit-ai/next',
-      'genkit',
-      '@opentelemetry/sdk-node',
-      '@opentelemetry/exporter-jaeger',
-      'handlebars',
-      'dotprompt',
-    ],
   },
 
   // Environment variables - use proper environment variables only
