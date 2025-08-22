@@ -1,8 +1,8 @@
-
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { initializeFirestore, memoryLocalCache, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
+import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { logFirebaseInit, logFirebaseError } from "./logger";
 
 // Firebase configuration from environment variables ONLY
@@ -57,6 +57,7 @@ let app: any;
 let auth: any;
 let db: any;
 let storage: any;
+let functions: any;
 
 try {
   // Initialize Firebase if no apps exist
@@ -65,35 +66,40 @@ try {
   } else {
     app = getApp();
   }
-  
+
   // Initialize Auth
   auth = getAuth(app);
-  
+
   // Initialize Firestore with memory cache for better performance
   db = initializeFirestore(app, {
     localCache: memoryLocalCache(),
   });
-  
+
   // Initialize Storage
   storage = getStorage(app);
-  
+
+  // Initialize Functions
+  functions = getFunctions(app);
+
   // Connect to emulators in development mode
   if (process.env.NODE_ENV === 'development' && process.env.USE_FIREBASE_EMULATORS === 'true') {
     try {
       connectAuthEmulator(auth, 'http://localhost:9099');
       connectFirestoreEmulator(db, 'localhost', 8080);
       connectStorageEmulator(storage, 'localhost', 9199);
-      logFirebaseInit(firebaseConfig.projectId);
+      connectFunctionsEmulator(functions, 'localhost', 5001);
+      console.log('Connected to Firebase emulators');
     } catch (emulatorError) {
+      console.log('Emulators already connected or not available');
       logFirebaseError(emulatorError, { context: 'emulator_connection' });
     }
   }
-  
+
   logFirebaseInit(firebaseConfig.projectId);
-  
+
 } catch (error) {
   logFirebaseError(error, { config: firebaseConfig });
   throw error; // Re-throw to prevent silent failures
 }
 
-export { app, auth, db, storage };
+export { app, auth, db, storage, functions };
