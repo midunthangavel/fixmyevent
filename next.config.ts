@@ -35,18 +35,20 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Server external packages (updated from deprecated serverComponentsExternalPackages)
-  serverExternalPackages: [
-    '@genkit-ai/core',
-    '@genkit-ai/googleai',
-    '@genkit-ai/firebase',
-    '@genkit-ai/next',
-    'genkit',
-    '@opentelemetry/sdk-node',
-    '@opentelemetry/exporter-jaeger',
-    'handlebars',
-    'dotprompt',
-  ],
+  // Server external packages configuration
+  experimental: {
+    serverComponentsExternalPackages: [
+      '@genkit-ai/core',
+      '@genkit-ai/googleai',
+      '@genkit-ai/firebase',
+      '@genkit-ai/next',
+      'genkit',
+      '@opentelemetry/sdk-node',
+      '@opentelemetry/exporter-jaeger',
+      'handlebars',
+      'dotprompt',
+    ],
+  },
 
   // Environment variables - use proper environment variables only
   env: {

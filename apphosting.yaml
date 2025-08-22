@@ -5,3 +5,15 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  
+  # Build configuration
+  build:
+    command: npm run build
+    
+  # Runtime configuration  
+  runtime:
+    nodeVersion: "18"
+    
+  # Environment variables
+  env:
+    NODE_ENV: production
