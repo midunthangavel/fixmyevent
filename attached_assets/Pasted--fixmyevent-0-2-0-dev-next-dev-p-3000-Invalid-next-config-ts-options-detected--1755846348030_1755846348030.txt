@@ -1,0 +1,55 @@
+
+> fixmyevent@0.2.0 dev
+> next dev -p 3000
+
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'serverComponentsExternalPackages' at "experimental"
+ ⚠     Unrecognized key(s) in object: 'swcMinify'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ⚠ `experimental.serverComponentsExternalPackages` has been moved to `serverExternalPackages`. Please update your next.config.ts file accordingly.
+   ▲ Next.js 15.5.0
+   - Local:        http://localhost:3000
+   - Network:      http://172.31.76.162:3000
+   - Experiments (use with caution):
+     · serverComponentsExternalPackages
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 2.6s
+ ○ Compiling / ...
+ ⨯ ./src/app/enhanced-globals.css:354:5
+Syntax error: /home/runner/workspace/src/app/enhanced-globals.css The `light` class does not exist. If `light` is a custom class, make sure it is defined within a `@layer` directive.
+
+  352 | @media (prefers-color-scheme: light) {
+  353 |   .auto-light {
+> 354 |     @apply light;
+      |     ^
+  355 |   }
+  356 | }
+ ⨯ ./src/app/enhanced-globals.css:354:5
+Syntax error: /home/runner/workspace/src/app/enhanced-globals.css The `light` class does not exist. If `light` is a custom class, make sure it is defined within a `@layer` directive.
+
+  352 | @media (prefers-color-scheme: light) {
+  353 |   .auto-light {
+> 354 |     @apply light;
+      |     ^
+  355 |   }
+  356 | }
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/home/runner/workspace/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!/home/runner/workspace/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!/home/runner/workspace/src/app/enhanced-globals.css': No serializer registered for PostCSSSyntaxError
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> PostCSSSyntaxError
+ ⨯ ./src/app/enhanced-globals.css:354:5
+Syntax error: /home/runner/workspace/src/app/enhanced-globals.css The `light` class does not exist. If `light` is a custom class, make sure it is defined within a `@layer` directive.
+
+  352 | @media (prefers-color-scheme: light) {
+  353 |   .auto-light {
+> 354 |     @apply light;
+      |     ^
+  355 |   }
+  356 | }
+ GET / 500 in 33028ms
+ ⚠ Cross origin request detected from b24a7152-d516-4ff3-b7eb-1ffa392339ac-00-3vs94ysjskw5a.pike.replit.dev to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
