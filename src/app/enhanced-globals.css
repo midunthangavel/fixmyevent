@@ -274,11 +274,11 @@
   .mobile-optimized {
     @apply px-4 py-3;
   }
-  
+
   .mobile-text {
     @apply text-sm;
   }
-  
+
   .mobile-spacing {
     @apply space-y-4;
   }
@@ -289,7 +289,7 @@
   .tablet-optimized {
     @apply px-6 py-4;
   }
-  
+
   .tablet-grid {
     @apply grid-cols-2;
   }
@@ -300,11 +300,11 @@
   .desktop-optimized {
     @apply px-8 py-6;
   }
-  
+
   .desktop-grid {
     @apply grid-cols-3;
   }
-  
+
   .desktop-sidebar {
     @apply w-80;
   }
@@ -315,7 +315,7 @@
   .print-hidden {
     display: none !important;
   }
-  
+
   .print-optimized {
     @apply text-black bg-white;
     @apply border border-gray-300;
@@ -327,7 +327,7 @@
   .high-contrast-mode {
     --contrast-multiplier: 1.5;
   }
-  
+
   .high-contrast-mode * {
     border-width: 2px;
   }
@@ -352,8 +352,8 @@
 @media (prefers-color-scheme: light) {
   .auto-light {
     color-scheme: light;
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: white;
+    color: black;
   }
 }
 
