@@ -1,7 +1,18 @@
-
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Disable strict mode in development to prevent double rendering
+  reactStrictMode: process.env.NODE_ENV === 'production',
+
+  // Enable SWC minification for better performance
+  swcMinify: true,
+
+  // Configure experimental features
+  experimental: {
+    // Enable app directory
+    appDir: true,
+  },
+
   // Simplified webpack configuration
   webpack: (config, { isServer }) => {
     if (!isServer) {

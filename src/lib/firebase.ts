@@ -31,26 +31,25 @@ const requiredEnvVars = [
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
-  console.warn(`Warning: Missing Firebase environment variables: ${missingEnvVars.join(', ')}. Using default values for development.`);
-  // Provide fallback values for development
-  if (!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID) {
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = 'demo-project';
-  }
-  if (!process.env.NEXT_PUBLIC_FIREBASE_APP_ID) {
-    process.env.NEXT_PUBLIC_FIREBASE_APP_ID = 'demo-app';
-  }
-  if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY = 'demo-key';
-  }
-  if (!process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) {
-    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN = 'demo-project.firebaseapp.com';
-  }
-  if (!process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET) {
-    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET = 'demo-project.appspot.com';
-  }
-  if (!process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID) {
-    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID = '123456789';
-  }
+  console.warn(`Warning: Missing Firebase environment variables: ${missingEnvVars.join(', ')}. Using demo configuration for development.`);
+  
+  // Create a demo configuration object
+  const demoConfig = {
+    projectId: 'demo-fixmyevent-project',
+    appId: '1:123456789:web:abcdef123456',
+    apiKey: 'AIzaSyDemo-Key-For-Development-Only',
+    authDomain: 'demo-fixmyevent-project.firebaseapp.com',
+    storageBucket: 'demo-fixmyevent-project.appspot.com',
+    messagingSenderId: '123456789'
+  };
+  
+  // Override missing environment variables
+  Object.entries(demoConfig).forEach(([key, value]) => {
+    const envKey = `NEXT_PUBLIC_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+    if (!process.env[envKey]) {
+      process.env[envKey] = value;
+    }
+  });
 }
 
 let app: any;
