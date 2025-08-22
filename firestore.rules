@@ -11,7 +11,7 @@ service cloud.firestore {
 
     // Listings collection
     match /listings/{listingId} {
-      allow read: if true; // Anyone can read listings
+      allow read: if resource.data.status == 'published'; // Only published listings are public
       allow create: if request.auth != null && request.auth.uid == resource.data.ownerId;
       allow update: if request.auth != null && request.auth.uid == resource.data.ownerId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
@@ -40,7 +40,7 @@ service cloud.firestore {
 
     // Reviews collection
     match /reviews/{reviewId} {
-      allow read: if true; // Anyone can read reviews
+      allow read: if request.auth != null; // Authenticated users can read reviews
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow update: if request.auth != null && request.auth.uid == resource.data.userId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;

@@ -36,13 +36,32 @@ export class FirebaseDatabaseService {
       };
     }
 
-    // In a real implementation, this would call Firebase
-    // For now, return cache miss
-    return {
-      success: false,
-      error: 'Firebase implementation required',
-      cached: false
-    };
+    try {
+      const { db } = await import('./firebase');
+      const { collection: firestoreCollection, doc, getDocs, getDoc } = await import('firebase/firestore');
+      
+      if (id) {
+        // Get single document
+        const docRef = doc(db, collection, id);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          const data = { id: docSnap.id, ...docSnap.data() } as T;
+          this.setCache(cacheKey, data, 5 * 60 * 1000); // 5 minutes cache
+          return { success: true, data, cached: false };
+        } else {
+          return { success: false, error: 'Document not found', cached: false };
+        }
+      } else {
+        // Get collection
+        const querySnapshot = await getDocs(firestoreCollection(db, collection));
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T;
+        this.setCache(cacheKey, data, 5 * 60 * 1000); // 5 minutes cache
+        return { success: true, data, cached: false };
+      }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error', cached: false };
+    }
   }
 
   /**
@@ -77,6 +96,20 @@ export class FirebaseDatabaseService {
   }
 
 
+
+  private setCache(key: string, data: any, ttl: number = 5 * 60 * 1000): void {
+    // Remove oldest items if cache is full
+    if (this.cache.size >= this.maxCacheSize) {
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
 
   private clearCacheByCollection(collection: string): void {
     for (const key of this.cache.keys()) {
