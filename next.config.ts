@@ -6,8 +6,7 @@ const nextConfig: NextConfig = {
 
   // Configure experimental features
   experimental: {
-    // Enable app directory (if needed for Next.js < 13.4)
-    appDir: true,
+    // App directory is now stable and enabled by default
   },
 
   // Server external packages configuration (moved from experimental)
