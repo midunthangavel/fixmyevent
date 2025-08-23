@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,21 +12,14 @@ import {
   Wifi, 
   WifiOff,
   Download, 
-  Zap, 
-  Shield, 
-  Clock,
   Bell,
-  BellOff,
   Cloud,
-  CloudOff,
   Database,
   Settings,
   CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Info
+  XCircle
 } from 'lucide-react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+
 
 interface PWAStatus {
   isInstalled: boolean;
@@ -55,7 +48,7 @@ export function EnhancedPWAManager({ className = "" }: EnhancedPWAManagerProps) 
 
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [notifications, setNotifications] = useLocalStorage<string[]>('pwa-notifications', []);
+
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);

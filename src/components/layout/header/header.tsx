@@ -140,7 +140,7 @@ export function Header() {
               </Link>
               <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
                 <Link
-                  href="/profile"
+                  href="/profile-settings"
                   className="block px-3 py-2 text-base font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-50 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 rounded-md"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

@@ -7,22 +7,12 @@ interface EventIdeasRequest {
   additionalInfo?: string;
 }
 
-interface EventIdea {
-  name: string;
-  description: string;
-  estimatedCost: number;
-  keyFeatures: string[];
-  tips: string[];
-}
-
 interface MoodBoardRequest {
   prompt: string;
 }
 
 interface BudgetSuggestionRequest {
   budget: number;
-  eventType: string;
-  guestCount: number;
 }
 
 interface VenueSearchRequest {

@@ -291,7 +291,7 @@ export class CostOptimizedPaymentService {
   /**
    * Process payment with cost-optimized gateway
    */
-  private async processWithCostOptimizedGateway(payment: Payment, methodData: any): Promise<PaymentResult> {
+  private async processWithCostOptimizedGateway(payment: Payment, _methodData: any): Promise<PaymentResult> {
     // Choose the most cost-effective payment gateway based on amount and method
     const gateway = this.selectOptimalPaymentGateway(payment.amount, payment.method);
     

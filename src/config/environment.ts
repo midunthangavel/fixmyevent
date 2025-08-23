@@ -37,32 +37,19 @@ export const environment = {
 
   // Database Configuration
   database: {
-    provider: process.env.NEXT_PUBLIC_DATABASE_PROVIDER || 'firebase',
-    supabase: {
-      url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-      anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    },
-    planetscale: {
-      url: process.env.NEXT_PUBLIC_PLANETSCALE_DATABASE_URL,
-    },
-    neon: {
-      url: process.env.NEXT_PUBLIC_NEON_DATABASE_URL,
-    },
+    provider: 'firebase',
   },
 
   // Payment Configuration
   payment: {
     stripe: {
       publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      secretKey: process.env.STRIPE_SECRET_KEY, // Server-side only
     },
     square: {
-      accessToken: process.env.SQUARE_ACCESS_TOKEN, // Server-side only
       applicationId: process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID,
     },
     paypal: {
       clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
-      secret: process.env.PAYPAL_SECRET, // Server-side only
     },
   },
 
@@ -70,7 +57,7 @@ export const environment = {
   hosting: {
     provider: process.env.NEXT_PUBLIC_HOSTING_PROVIDER || 'vercel',
     vercel: {
-      token: process.env.VERCEL_TOKEN, // Server-side only
+      token: process.env.VERCEL_TOKEN,
     },
   },
 
@@ -82,23 +69,37 @@ export const environment = {
     analytics: {
       id: process.env.NEXT_PUBLIC_ANALYTICS_ID,
     },
+    performance: process.env.NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING === 'true',
   },
 
   // Cost Optimization Settings
   costOptimization: {
-    maxMonthlyAISpend: parseInt(process.env.NEXT_PUBLIC_MAX_MONTHLY_AI_SPEND || '25'),
-    maxMonthlyDBSpend: parseInt(process.env.NEXT_PUBLIC_MAX_MONTHLY_DB_SPEND || '10'),
-    maxMonthlyHostingSpend: parseInt(process.env.NEXT_PUBLIC_MAX_MONTHLY_HOSTING_SPEND || '15'),
+    maxMonthlyAISpend: Number(process.env.NEXT_PUBLIC_MAX_MONTHLY_AI_SPEND) || 25,
+    maxMonthlyDBSpend: Number(process.env.NEXT_PUBLIC_MAX_MONTHLY_DB_SPEND) || 10,
+    maxMonthlyHostingSpend: Number(process.env.NEXT_PUBLIC_MAX_MONTHLY_HOSTING_SPEND) || 15,
     enableLocalAI: process.env.NEXT_PUBLIC_ENABLE_LOCAL_AI === 'true',
-    enableLocalDatabase: process.env.NEXT_PUBLIC_ENABLE_LOCAL_DATABASE === 'true',
-    enableCaching: process.env.NEXT_PUBLIC_ENABLE_CACHING !== 'false',
-    enableOfflineMode: process.env.NEXT_PUBLIC_ENABLE_OFFLINE_MODE !== 'false',
+    enableCaching: process.env.NEXT_PUBLIC_ENABLE_CACHING === 'true',
+    enableOfflineMode: process.env.NEXT_PUBLIC_ENABLE_OFFLINE_MODE === 'true',
+  },
+
+  // Development Settings
+  development: {
+    nodeEnv: process.env.NODE_ENV || 'development',
+    useFirebaseEmulators: process.env.USE_FIREBASE_EMULATORS === 'true',
+    appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+    functionsUrl: process.env.NEXT_PUBLIC_FUNCTIONS_URL || 'http://localhost:5001',
+    firebaseUIUrl: process.env.NEXT_PUBLIC_FIREBASE_UI_URL || 'http://localhost:4000',
+    debugMode: process.env.NODE_ENV === 'development',
   },
 };
 
-// Validation function for required environment variables
-export function validateEnvironment(): void {
-  const requiredVars = [
+// Environment validation
+export const validateEnvironment = (): { valid: boolean; errors: string[] } => {
+  const errors: string[] = [];
+  
+  // Required Firebase fields
+  const requiredFirebaseFields = [
     'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
     'NEXT_PUBLIC_FIREBASE_APP_ID',
     'NEXT_PUBLIC_FIREBASE_API_KEY',
@@ -107,69 +108,29 @@ export function validateEnvironment(): void {
     'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
   ];
 
-  const missingVars = requiredVars.filter(envVar => !process.env[envVar]);
+  requiredFirebaseFields.forEach(field => {
+    if (!process.env[field]) {
+      errors.push(`Missing required environment variable: ${field}`);
+    }
+  });
 
-  if (missingVars.length > 0) {
-    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
-  }
-
-  // Validate AI configuration based on provider
+  // Validate AI provider configuration
   const aiProvider = process.env.NEXT_PUBLIC_AI_PROVIDER;
-  if (aiProvider && aiProvider !== 'local') {
-    const requiredAIKeys = {
-      'openai': ['NEXT_PUBLIC_OPENAI_API_KEY'],
-      'claude': ['NEXT_PUBLIC_CLAUDE_API_KEY'],
-      'huggingface': ['NEXT_PUBLIC_HUGGINGFACE_API_KEY'],
-    };
-    
-    const requiredKeys = requiredAIKeys[aiProvider as keyof typeof requiredAIKeys];
-    if (requiredKeys) {
-      const missingAIKeys = requiredKeys.filter(key => !process.env[key]);
-      if (missingAIKeys.length > 0) {
-        throw new Error(`Missing required AI environment variables for ${aiProvider}: ${missingAIKeys.join(', ')}`);
-      }
-    }
+  if (aiProvider && !['local', 'openai', 'claude', 'huggingface'].includes(aiProvider)) {
+    errors.push(`Invalid AI provider: ${aiProvider}`);
   }
 
-  // Validate database configuration
-  const dbProvider = process.env.NEXT_PUBLIC_DATABASE_PROVIDER;
-  if (dbProvider && dbProvider !== 'firebase') {
-    const requiredDBKeys = {
-      'supabase': ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'],
-      'planetscale': ['NEXT_PUBLIC_PLANETSCALE_DATABASE_URL'],
-      'neon': ['NEXT_PUBLIC_NEON_DATABASE_URL'],
-    };
-    
-    const requiredKeys = requiredDBKeys[dbProvider as keyof typeof requiredDBKeys];
-    if (requiredKeys) {
-      const missingDBKeys = requiredKeys.filter(key => !process.env[key]);
-      if (missingDBKeys.length > 0) {
-        throw new Error(`Missing required database environment variables for ${dbProvider}: ${missingDBKeys.join(', ')}`);
-      }
-    }
+  // Validate cost optimization values
+  const maxAISpend = Number(process.env.NEXT_PUBLIC_MAX_MONTHLY_AI_SPEND);
+  if (maxAISpend && (maxAISpend < 0 || maxAISpend > 1000)) {
+    errors.push('MAX_MONTHLY_AI_SPEND must be between 0 and 1000');
   }
 
-  // Validate payment configuration
-  const hasStripe = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-  const hasSquare = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
-  const hasPayPal = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+};
 
-  if (hasStripe && !process.env.STRIPE_SECRET_KEY) {
-    console.warn('Warning: STRIPE_SECRET_KEY is missing (required for server-side operations)');
-  }
-  if (hasSquare && !process.env.SQUARE_ACCESS_TOKEN) {
-    console.warn('Warning: SQUARE_ACCESS_TOKEN is missing (required for server-side operations)');
-  }
-  if (hasPayPal && !process.env.PAYPAL_SECRET) {
-    console.warn('Warning: PAYPAL_SECRET is missing (required for server-side operations)');
-  }
-}
-
-// Export individual configurations for backward compatibility
-export const aiConfig = environment.ai;
-export const firebaseConfig = environment.firebase;
-export const databaseConfig = environment.database;
-export const paymentConfig = environment.payment;
-export const hostingConfig = environment.hosting;
-export const monitoringConfig = environment.monitoring;
-export const costOptimizationConfig = environment.costOptimization;
+// Export validation result
+export const environmentValidation = validateEnvironment();

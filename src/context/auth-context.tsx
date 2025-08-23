@@ -83,39 +83,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen to auth state changes
     const unsubscribe = authService.onAuthStateChanged(async (firebaseUser) => {
-      if (firebaseUser) {
-        const authUser: AuthUser = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-          emailVerified: firebaseUser.emailVerified,
-          phoneNumber: firebaseUser.phoneNumber,
-        };
-        
-        setUser(authUser);
-        
-        try {
-          const userSession = await authService.getUserSession();
-          if (userSession) {
-            setSession(userSession);
-            setProfile(userSession.profile);
+      try {
+        if (firebaseUser) {
+          const authUser: AuthUser = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            emailVerified: firebaseUser.emailVerified,
+            phoneNumber: firebaseUser.phoneNumber,
+          };
+          
+          setUser(authUser);
+          
+          try {
+            const userSession = await authService.getUserSession();
+            if (userSession) {
+              setSession(userSession);
+              setProfile(userSession.profile);
+            }
+          } catch (err) {
+            console.error('Failed to get user session:', err);
           }
-        } catch (err) {
-          console.error('Failed to get user session:', err);
+        } else {
+          setUser(null);
+          setProfile(null);
+          setSession(null);
         }
-      } else {
-        setUser(null);
-        setProfile(null);
-        setSession(null);
+      } catch (err) {
+        console.error('Auth state change error:', err);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     });
 
     initializeAuth();
-    return unsubscribe;
-  }, []);
+    
+    // Add a fallback timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.warn('Auth initialization timeout, setting loading to false');
+        setLoading(false);
+      }
+    }, 5000); // 5 second timeout
+    
+    return () => {
+      unsubscribe();
+      clearTimeout(timeoutId);
+    };
+  }, [loading]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     try {

@@ -39,19 +39,6 @@ export function ProgressWidget({
     }
   };
 
-  const getProgressColor = () => {
-    switch (status) {
-      case 'success':
-        return 'bg-green-500';
-      case 'warning':
-        return 'bg-yellow-500';
-      case 'error':
-        return 'bg-red-500';
-      default:
-        return 'bg-primary';
-    }
-  };
-
   return (
     <Card className={cn(
       "card-modern hover-lift border-0",

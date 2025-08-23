@@ -1,6 +1,6 @@
 import type { FirebaseApp } from 'firebase/app';
 import type { Auth, User } from 'firebase/auth';
-import type { Firestore, DocumentData, QueryDocumentSnapshot, DocumentSnapshot, QuerySnapshot, CollectionReference, DocumentReference, Query, QueryConstraint } from 'firebase/firestore';
+import type { Firestore, DocumentData, QueryDocumentSnapshot, DocumentSnapshot, QuerySnapshot, CollectionReference } from 'firebase/firestore';
 import type { StorageReference, UploadResult } from 'firebase/storage';
 
 // Firebase App Types
@@ -23,7 +23,7 @@ export interface FirebaseDocumentData extends DocumentData {
 }
 
 export interface FirebaseDocumentSnapshot<T = FirebaseDocumentData> extends DocumentSnapshot<T> {
-  exists(): boolean;
+  exists(): this is QueryDocumentSnapshot<T, DocumentData>;
   data(): T | undefined;
   id: string;
 }

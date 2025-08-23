@@ -14,8 +14,6 @@ import type { Listing } from '@/services/listings';
 import { searchListings } from '@/services/listings';
 
 interface SearchPageClientProps {
-  initialListings: Listing[];
-  hasSearched: boolean;
   searchParams: {
     q?: string;
     location?: string;
@@ -28,18 +26,38 @@ interface SearchPageClientProps {
   };
 }
 
-export function SearchPageClient({ initialListings, hasSearched, searchParams }: SearchPageClientProps) {
+export function SearchPageClient({ searchParams }: SearchPageClientProps) {
   const router = useRouter();
   const searchParamsHook = useSearchParams();
-  const [listings, setListings] = useState<Listing[]>(initialListings);
+  const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.q || '');
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Perform initial search if searchParams are provided
+  useEffect(() => {
+    const performInitialSearch = async () => {
+      if (Object.keys(searchParams).some(key => searchParams[key as keyof typeof searchParams])) {
+        setLoading(true);
+        try {
+          const results = await searchListings(searchParams);
+          setListings(results);
+          setHasSearched(true);
+        } catch (error) {
+          console.error('Initial search error:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    performInitialSearch();
+  }, [searchParams]);
 
   useEffect(() => {
-    setListings(initialListings);
     setSearchQuery(searchParams.q || '');
-  }, [initialListings, searchParams.q]);
+  }, [searchParams.q]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;

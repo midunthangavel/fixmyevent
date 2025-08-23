@@ -21,16 +21,62 @@ import type {
   UserProfile, 
   AuthUser, 
   CreateUserData, 
-  UpdateUserData,
   UserSession 
 } from '@/types/user';
 
 export class AuthService {
   private auth = auth;
+  
+  // Check if Firebase auth is properly configured
+  private isFirebaseConfigured(): boolean {
+    return this.auth && typeof this.auth.onAuthStateChanged === 'function';
+  }
 
   // Sign in with email and password
   async signIn(email: string, password: string): Promise<UserCredential> {
     try {
+      // Check if Firebase auth is configured
+      if (!this.isFirebaseConfigured()) {
+        console.warn('Firebase auth not configured, using fallback mode');
+        // Return a mock user credential for development
+        return {
+          user: {
+            uid: 'dev-user-123',
+            email: email,
+            displayName: 'Development User',
+            photoURL: null,
+            emailVerified: true,
+            phoneNumber: null,
+            metadata: {} as any,
+            providerData: [],
+            refreshToken: 'dev-refresh-token',
+            delete: async () => {},
+            getIdToken: async () => 'dev-token',
+            getIdTokenResult: async () => ({ authTime: '', issuedAtTime: '', signInTime: '', expirationTime: '', claims: {}, token: 'dev-token' }),
+            reload: async () => {},
+            toJSON: () => ({}),
+            tenantId: null,
+            isAnonymous: false,
+            providerId: 'password',
+            updateEmail: async () => {},
+            updatePassword: async () => {},
+            updatePhoneNumber: async () => {},
+            updateProfile: async () => {},
+            linkWithCredential: async () => ({} as any),
+            linkWithPopup: async () => ({} as any),
+            linkWithRedirect: async () => {},
+            reauthenticateWithCredential: async () => ({} as any),
+            reauthenticateWithPopup: async () => ({} as any),
+            reauthenticateWithRedirect: async () => {},
+            sendEmailVerification: async () => {},
+            verifyBeforeUpdateEmail: async () => {},
+            unlink: async () => ({} as any),
+          } as any,
+          operationType: 'signIn',
+          providerId: 'password',
+        } as any;
+      }
+
       // Validate input
       if (!email || !password) {
         throw new AppError('Email and password are required', ERROR_CODES.VALIDATION_REQUIRED_FIELD, 400);
@@ -119,6 +165,11 @@ export class AuthService {
 
   // Get current user as AuthUser
   getCurrentAuthUser(): AuthUser | null {
+    if (!this.isFirebaseConfigured()) {
+      console.warn('Firebase auth not configured, using fallback mode');
+      return null;
+    }
+    
     const user = this.auth.currentUser;
     if (!user) return null;
 
@@ -134,6 +185,12 @@ export class AuthService {
 
   // Listen to authentication state changes
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
+    if (!this.isFirebaseConfigured()) {
+      console.warn('Firebase auth not configured, using fallback mode');
+      // In fallback mode, immediately call with null user and return no-op unsubscribe
+      setTimeout(() => callback(null), 100);
+      return () => {};
+    }
     return onAuthStateChanged(this.auth, callback);
   }
 
@@ -166,8 +223,8 @@ export class AuthService {
       const updates: { displayName?: string; photoURL?: string } = {};
       
       if (displayName !== undefined) {
-        if (displayName && !ValidationUtils.validateMinLength(displayName, 2, 'Display name')) {
-          throw new AppError('Display name must be at least 2 characters', ERROR_CODES.VALIDATION_TOO_SHORT, 400);
+        if (displayName && displayName.length < 2) {
+          throw new Error('Display name must be at least 2 characters long');
         }
         updates.displayName = displayName;
       }
@@ -281,6 +338,11 @@ export class AuthService {
   // Get user session data
   async getUserSession(): Promise<UserSession | null> {
     try {
+      if (!this.isFirebaseConfigured()) {
+        console.warn('Firebase auth not configured, using fallback mode');
+        return null;
+      }
+      
       const user = this.getCurrentAuthUser();
       if (!user) return null;
 

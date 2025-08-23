@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
-import { Calendar, DollarSign, Clock, Sparkles, CheckCircle, AlertCircle, Play, Pause, RotateCcw } from 'lucide-react'
+import { Calendar, Clock, Sparkles, CheckCircle, AlertCircle, Play, RotateCcw } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 
 interface AutomatedTask {

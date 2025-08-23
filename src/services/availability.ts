@@ -1,18 +1,14 @@
 import { 
   collection, 
   doc, 
-  getDoc, 
   getDocs, 
   addDoc, 
   updateDoc, 
-  deleteDoc, 
   query, 
   where, 
   orderBy, 
   serverTimestamp,
-  onSnapshot,
-  writeBatch,
-  runTransaction 
+  onSnapshot
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { 
@@ -21,10 +17,8 @@ import type {
   RecurringAvailability, 
   BlockedTime,
   AvailabilityConflict,
-  AvailabilityUpdate,
   AvailabilitySettings,
-  TimeSlot,
-  AvailabilityStatus 
+  TimeSlot
 } from '@/types/availability';
 
 // Collection names
@@ -45,7 +39,7 @@ export class AvailabilityService {
   private recurringAvailabilityRef = collection(db, COLLECTIONS.RECURRING_AVAILABILITY);
   private blockedTimesRef = collection(db, COLLECTIONS.BLOCKED_TIMES);
   private conflictsRef = collection(db, COLLECTIONS.AVAILABILITY_CONFLICTS);
-  private updatesRef = collection(db, COLLECTIONS.AVAILABILITY_UPDATES);
+
   private settingsRef = collection(db, COLLECTIONS.AVAILABILITY_SETTINGS);
 
   // Create daily availability
@@ -142,9 +136,11 @@ export class AvailabilityService {
       
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
-        const data = querySnapshot.docs[0].data();
+        const doc = querySnapshot.docs[0];
+        if (!doc) return null;
+        const data = doc.data();
         return {
-          id: querySnapshot.docs[0].id,
+          id: doc.id,
           ...data,
           weekStartDate: data.weekStartDate?.toDate() || new Date(),
           weekEndDate: data.weekEndDate?.toDate() || new Date(),
@@ -282,34 +278,46 @@ export class AvailabilityService {
 
       if (dailyAvailability.length > 0) {
         const dayAvailability = dailyAvailability[0];
-        
-        // Check if it's a working day
-        if (!dayAvailability.isWorkingDay) {
-          isAvailable = false;
-          conflicts.push({
-            type: 'non_working_day',
-            reason: 'Not a working day',
-            severity: 'high'
-          });
-        }
+        if (dayAvailability) {
+          // Check if it's a working day
+          if (!dayAvailability.isWorkingDay) {
+            isAvailable = false;
+            conflicts.push({
+              type: 'non_working_day',
+              reason: 'Not a working day',
+              severity: 'high'
+            });
+          }
 
-        // Check time slots
-        for (const slot of dayAvailability.timeSlots) {
-          const slotStart = new Date(startTime);
-          slotStart.setHours(parseInt(slot.startTime.split(':')[0]), parseInt(slot.startTime.split(':')[1]));
-          
-          const slotEnd = new Date(startTime);
-          slotEnd.setHours(parseInt(slot.endTime.split(':')[0]), parseInt(slot.endTime.split(':')[1]));
-
-          if (startTime < slotEnd && endTime > slotStart) {
-            if (!slot.isAvailable || slot.currentBookings >= slot.maxBookings) {
-              isAvailable = false;
-              conflicts.push({
-                type: 'slot_unavailable',
-                reason: 'Time slot is not available or fully booked',
-                severity: 'medium',
-                slot
-              });
+          // Check time slots
+          for (const slot of dayAvailability.timeSlots || []) {
+            if (!slot.startTime || !slot.endTime) continue;
+            
+            const startTimeParts = slot.startTime.split(':');
+            const endTimeParts = slot.endTime.split(':');
+            
+            if (startTimeParts.length >= 2 && endTimeParts.length >= 2) {
+              const startHour = parseInt(startTimeParts[0]!);
+              const startMinute = parseInt(startTimeParts[1]!);
+              const endHour = parseInt(endTimeParts[0]!);
+              const endMinute = parseInt(endTimeParts[1]!);
+              
+              if (!isNaN(startHour) && !isNaN(startMinute) && !isNaN(endHour) && !isNaN(endMinute)) {
+                const slotStart = new Date(startTime);
+                const slotEnd = new Date(startTime);
+                slotStart.setHours(startHour, startMinute);
+                slotEnd.setHours(endHour, endMinute);
+                
+                if (startTime < slotEnd && endTime > slotStart) {
+                  isAvailable = false;
+                  conflicts.push({
+                    type: 'slot_unavailable',
+                    reason: 'Time slot is not available or fully booked',
+                    severity: 'medium',
+                    slot
+                  });
+                }
+              }
             }
           }
         }
@@ -381,10 +389,12 @@ export class AvailabilityService {
           notes: `Booked by ${bookingId}`
         };
 
-        dayAvailability.timeSlots.push(timeSlot);
-        dayAvailability.totalBookings += 1;
+        if (dayAvailability) {
+          dayAvailability.timeSlots.push(timeSlot);
+          dayAvailability.totalBookings += 1;
 
-        await this.updateDailyAvailability(dayAvailability.id, dayAvailability);
+          await this.updateDailyAvailability(dayAvailability.id, dayAvailability);
+        }
       } else {
         // Create new daily availability
         const newAvailability: Omit<DailyAvailability, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -430,22 +440,26 @@ export class AvailabilityService {
         const dayAvailability = existingAvailability[0];
         
         // Find and update the time slot
-        const timeSlotIndex = dayAvailability.timeSlots.findIndex(slot => 
-          slot.startTime === startTime.toTimeString().slice(0, 5) &&
-          slot.endTime === endTime.toTimeString().slice(0, 5) &&
-          slot.notes?.includes(bookingId)
-        );
+        if (dayAvailability) {
+          const timeSlotIndex = dayAvailability.timeSlots.findIndex(slot => 
+            slot.startTime === startTime.toTimeString().slice(0, 5) &&
+            slot.endTime === endTime.toTimeString().slice(0, 5) &&
+            slot.notes?.includes(bookingId)
+          );
 
-        if (timeSlotIndex !== -1) {
-          const timeSlot = dayAvailability.timeSlots[timeSlotIndex];
-          timeSlot.isAvailable = true;
-          timeSlot.currentBookings = Math.max(0, timeSlot.currentBookings - 1);
-          timeSlot.notes = timeSlot.currentBookings === 0 ? undefined : timeSlot.notes;
-          
-          dayAvailability.totalBookings = Math.max(0, dayAvailability.totalBookings - 1);
+          if (timeSlotIndex !== -1) {
+            const timeSlot = dayAvailability.timeSlots[timeSlotIndex];
+            if (timeSlot) {
+              timeSlot.isAvailable = true;
+              timeSlot.currentBookings = Math.max(0, timeSlot.currentBookings - 1);
+              timeSlot.notes = timeSlot.currentBookings === 0 ? undefined : timeSlot.notes;
+            }
+            
+            dayAvailability.totalBookings = Math.max(0, dayAvailability.totalBookings - 1);
 
-          await this.updateDailyAvailability(dayAvailability.id, dayAvailability);
-          return true;
+            await this.updateDailyAvailability(dayAvailability.id, dayAvailability);
+            return true;
+          }
         }
       }
 
@@ -502,7 +516,7 @@ export class AvailabilityService {
   }
 
   // Resolve availability conflict
-  async resolveAvailabilityConflict(conflictId: string, resolution: string, notes?: string): Promise<void> {
+  async resolveAvailabilityConflict(conflictId: string, _resolution: string, notes?: string): Promise<void> {
     try {
       const docRef = doc(this.conflictsRef, conflictId);
       await updateDoc(docRef, {
@@ -518,15 +532,17 @@ export class AvailabilityService {
   }
 
   // Get or create availability settings
-  async getOrCreateSettings(userId: string): Promise<AvailabilitySettings> {
+  async getOrCreateSettings(userId: string): Promise<AvailabilitySettings | null> {
     try {
       const q = query(this.settingsRef, where('userId', '==', userId));
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
-        const data = querySnapshot.docs[0].data();
+        const doc = querySnapshot.docs[0];
+        if (!doc) return null;
+        const data = doc.data();
         return {
-          id: querySnapshot.docs[0].id,
+          id: doc.id,
           ...data,
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date(),
@@ -595,7 +611,9 @@ export class AvailabilityService {
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
-        const docRef = doc(this.settingsRef, querySnapshot.docs[0].id);
+        const docSnapshot = querySnapshot.docs[0];
+        if (!docSnapshot) return;
+        const docRef = doc(this.settingsRef, docSnapshot.id);
         await updateDoc(docRef, {
           ...updateData,
           updatedAt: serverTimestamp(),

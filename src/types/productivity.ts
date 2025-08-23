@@ -1,7 +1,7 @@
 // Productivity Enhancement Types
 // This file defines all the new types for productivity features
 
-import type { BaseEntity } from './common';
+
 
 // ===== AI AUTOMATION TYPES =====
 

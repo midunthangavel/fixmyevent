@@ -71,7 +71,7 @@ export function BaseVenueCard({
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={venue.images[0] || '/images/placeholder-venue.jpg'}
+          src={venue.images[0]?.url || '/images/placeholder-venue.jpg'}
           alt={venue.name}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />

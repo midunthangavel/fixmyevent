@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-// import { createUserWithEmailAndPassword } from 'firebase/auth';
-// import { auth, db } from '@/lib/firebase';
-// import { doc, setDoc } from 'firebase/firestore';
+import { useAuth } from '@/context/auth-context';
+import { Chrome, Facebook, Apple, Eye, EyeOff } from 'lucide-react';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -21,9 +21,12 @@ export default function SignupPage() {
     displayName: '',
     phoneNumber: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { signUp } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -45,42 +48,29 @@ export default function SignupPage() {
       return;
     }
 
-    setLoading(true);
+        setLoading(true);
 
     try {
-      // Commented out Firebase auth for development
-      /*
-      const result = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      
-      const userProfile = {
-        uid: result.user.uid,
-        email: formData.email,
-        displayName: formData.displayName,
-        phoneNumber: formData.phoneNumber,
-        role: 'user',
-        avatar: '',
-        bio: '',
-        preferences: {
-          notifications: true,
-          emailUpdates: true,
-          marketing: false
-        },
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-
-      await setDoc(doc(db, 'users', result.user.uid), userProfile);
-      */
-      
-      // Mock signup for development
-      toast({ title: 'Success', description: 'Account created successfully (Demo Mode)' });
-      router.push('/role-selection');
-      
+      if (signUp) {
+        await signUp(formData.email, formData.password, {
+          firstName: formData.displayName,
+          lastName: '',
+          location: {
+            city: '',
+            state: '',
+            country: '',
+          },
+        });
+        toast({ title: 'Success', description: 'Account created successfully' });
+        router.push('/role-selection');
+      } else {
+        // Fallback to demo mode if auth context is not available
+        toast({ title: 'Success', description: 'Account created successfully (Demo Mode)' });
+        router.push('/role-selection');
+      }
     } catch (error: unknown) {
       let description = 'An unexpected error occurred. Please try again.';
       
-      // Commented out Firebase error handling for development
-      /*
       if (error && typeof error === 'object' && 'code' in error) {
         if (error.code === 'auth/email-already-in-use') {
           description = 'An account with this email already exists.';
@@ -93,7 +83,6 @@ export default function SignupPage() {
       if (error instanceof Error && error.message) {
         description = error.message;
       }
-      */
       
       toast({ variant: 'destructive', title: 'Signup Failed', description });
     } finally {
@@ -111,6 +100,33 @@ export default function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Social Authentication */}
+          <div className="space-y-3 mb-6">
+            <Button variant="outline" className="w-full" onClick={() => router.push('/social-auth')}>
+              <Chrome className="w-4 h-4 mr-2" />
+              Continue with Google
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => router.push('/social-auth')}>
+              <Facebook className="w-4 h-4 mr-2" />
+              Continue with Facebook
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => router.push('/social-auth')}>
+              <Apple className="w-4 h-4 mr-2" />
+              Continue with Apple
+            </Button>
+          </div>
+          
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with email
+              </span>
+            </div>
+          </div>
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="displayName">Full Name</Label>
@@ -150,27 +166,51 @@ export default function SignupPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Create a password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-              />
+              <div className="relative">
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Creating Account...' : 'Create Account'}

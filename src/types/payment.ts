@@ -108,6 +108,7 @@ export type SavedPaymentMethod = z.infer<typeof savedPaymentMethodSchema>;
 export const invoiceSchema = z.object({
   id: z.string(),
   bookingId: z.string(),
+  invoiceNumber: z.string(),
   amount: z.number().positive(),
   currency: z.string().default('usd'),
   status: z.nativeEnum(PAYMENT_STATUS),
@@ -122,9 +123,62 @@ export const invoiceSchema = z.object({
   subtotal: z.number().positive(),
   tax: z.number().min(0),
   total: z.number().positive(),
+  totalAmount: z.number().positive(),
   notes: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
 export type Invoice = z.infer<typeof invoiceSchema>;
+
+// Payment schema
+export const paymentSchema = z.object({
+  id: z.string(),
+  bookingId: z.string(),
+  userId: z.string(),
+  serviceProviderId: z.string().optional(),
+  amount: z.number().positive(),
+  currency: z.string().default('usd'),
+  paymentMethod: z.nativeEnum(PAYMENT_METHOD),
+  paymentType: z.enum(['advance', 'full', 'installment']).default('full'),
+  status: z.nativeEnum(PAYMENT_STATUS),
+  stripePaymentIntentId: z.string().optional(),
+  paypalOrderId: z.string().optional(),
+  description: z.string().optional(),
+  metadata: z.record(z.string()).optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type Payment = z.infer<typeof paymentSchema>;
+
+// Installment plan schema
+export const installmentPlanSchema = z.object({
+  id: z.string(),
+  bookingId: z.string(),
+  totalAmount: z.number().positive(),
+  installments: z.array(z.object({
+    amount: z.number().positive(),
+    dueDate: z.date(),
+    status: z.nativeEnum(PAYMENT_STATUS),
+    paymentId: z.string().optional(),
+  })),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type InstallmentPlan = z.infer<typeof installmentPlanSchema>;
+
+// Escrow schema
+export const escrowSchema = z.object({
+  id: z.string(),
+  bookingId: z.string(),
+  amount: z.number().positive(),
+  currency: z.string().default('usd'),
+  status: z.enum(['pending', 'held', 'released', 'refunded']),
+  releaseConditions: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export type Escrow = z.infer<typeof escrowSchema>;

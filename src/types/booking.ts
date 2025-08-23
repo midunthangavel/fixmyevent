@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { Category } from './listing';
+
 import type { Timestamp } from 'firebase/firestore';
 
 // Base booking schema

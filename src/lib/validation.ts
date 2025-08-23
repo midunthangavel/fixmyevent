@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AppError, ERROR_CODES } from './errors';
+import { AppError } from './errors';
 
 // Common validation schemas
 export const commonSchemas = {
@@ -140,10 +140,12 @@ export class ValidationUtils {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const firstError = error.errors[0];
-        throw AppError.fromValidationError(
-          firstError.path.join('.'),
-          firstError.message
-        );
+        if (firstError) {
+          throw AppError.fromValidationError(
+            firstError.path.join('.'),
+            firstError.message
+          );
+        }
       }
       throw error;
     }
@@ -151,14 +153,16 @@ export class ValidationUtils {
 
   static validatePartial<T>(schema: z.ZodSchema<T>, data: unknown): Partial<T> {
     try {
-      return schema.partial().parse(data);
+      return schema.parse(data);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const firstError = error.errors[0];
-        throw AppError.fromValidationError(
-          firstError.path.join('.'),
-          firstError.message
-        );
+        if (firstError) {
+          throw AppError.fromValidationError(
+            firstError.path.join('.'),
+            firstError.message
+          );
+        }
       }
       throw error;
     }
@@ -171,12 +175,31 @@ export class ValidationUtils {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const firstError = error.errors[0];
-        return { 
-          success: false, 
-          error: `Validation error in ${firstError.path.join('.')}: ${firstError.message}` 
-        };
+        if (firstError) {
+          return { 
+            success: false, 
+            error: `Validation error in ${firstError.path.join('.')}: ${firstError.message}` 
+          };
+        }
       }
       return { success: false, error: 'Validation failed' };
+    }
+  }
+
+  static validateStrict<T>(schema: z.ZodSchema<T>, data: unknown): T {
+    try {
+      return schema.parse(data);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        if (firstError) {
+          throw AppError.fromValidationError(
+            firstError.path.join('.'),
+            firstError.message
+          );
+        }
+      }
+      throw error;
     }
   }
 
@@ -205,6 +228,11 @@ export class ValidationUtils {
     } catch {
       return false;
     }
+  }
+
+  static validatePassword(password: string): boolean {
+    return password.length >= 8 && 
+           /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password);
   }
 
   static validateDateRange(startDate: Date, endDate: Date): boolean {

@@ -230,7 +230,7 @@ export class IntegrationConnectivityService {
     }
   }
 
-  async syncCRMContacts(userId: string, provider: string, apiKey: string): Promise<CRMContact[]> {
+  async syncCRMContacts(_userId: string, provider: string, _apiKey: string): Promise<CRMContact[]> {
     try {
       // Simulate fetching contacts from CRM
       const contacts: CRMContact[] = [
@@ -276,7 +276,7 @@ export class IntegrationConnectivityService {
     }
   }
 
-  async getCRMContacts(userId: string, filter?: {
+  async getCRMContacts(_userId: string, filter?: {
     status?: string;
     tags?: string[];
     company?: string;
@@ -481,7 +481,10 @@ export class IntegrationConnectivityService {
       if (method.isDefault) {
         const remainingMethods = userMethods.filter(m => m.id !== methodId && m.isActive);
         if (remainingMethods.length > 0) {
-          await this.setDefaultPaymentMethod(userId, remainingMethods[0].id);
+          const firstMethod = remainingMethods[0];
+          if (firstMethod && firstMethod.id) {
+            await this.setDefaultPaymentMethod(userId, firstMethod.id);
+          }
         }
       }
 
@@ -681,25 +684,25 @@ export class IntegrationConnectivityService {
     payments: { active: number; total: number };
   }> {
     try {
-      const calendarIntegrations = this.getCalendarIntegrationsByUser(userId);
-      const paymentMethods = this.getPaymentMethods(userId);
+      const calendarIntegrations = await this.getCalendarIntegrationsByUser(userId);
+      const paymentMethods = await this.getPaymentMethods(userId);
 
       return {
         calendar: {
           active: calendarIntegrations.filter(i => i.isActive).length,
           total: calendarIntegrations.length
         },
-        crm: {
-          active: 1, // Simulated
-          total: 1
-        },
-        social: {
-          active: 1, // Simulated
-          total: 1
-        },
         payments: {
           active: paymentMethods.filter(m => m.isActive).length,
           total: paymentMethods.length
+        },
+        crm: {
+          active: 0,
+          total: 0
+        },
+        social: {
+          active: 0,
+          total: 0
         }
       };
     } catch (error) {
@@ -713,7 +716,7 @@ export class IntegrationConnectivityService {
     }
   }
 
-  async testIntegration(integrationId: string, type: 'calendar' | 'crm' | 'social' | 'payment'): Promise<{
+  async testIntegration(_integrationId: string, type: 'calendar' | 'crm' | 'social' | 'payment'): Promise<{
     success: boolean;
     message: string;
     details?: any;
@@ -738,7 +741,7 @@ export class IntegrationConnectivityService {
     } catch (error) {
       return {
         success: false,
-        message: `Integration test failed: ${error.message}`
+        message: `Integration test failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
   }

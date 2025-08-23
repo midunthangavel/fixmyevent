@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import './enhanced-globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeProvider } from 'next-themes'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/context/auth-context'
 import { FavoritesProvider } from '@/context/favorites-context'
@@ -57,11 +57,6 @@ export const metadata: Metadata = {
     description: 'Plan your perfect event with AI-powered recommendations and smart automation.',
     images: ['/images/og-image.png'],
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
   robots: {
     index: true,
     follow: true,
@@ -76,13 +71,19 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/images/icon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/images/icon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/images/icon-72x72.svg', sizes: '72x72', type: 'image/svg+xml' },
+      { url: '/images/icon-96x96.svg', sizes: '96x96', type: 'image/svg+xml' },
     ],
     apple: [
-      { url: '/images/icon-180x180.png', sizes: '180x180', type: 'image/png' },
+      { url: '/images/icon-144x144.svg', sizes: '144x144', type: 'image/svg+xml' },
     ],
   },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 }
 
 function LoadingFallback() {

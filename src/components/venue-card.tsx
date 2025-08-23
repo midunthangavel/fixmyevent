@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { BaseVenueCard, BaseVenueCardProps } from '@/components/shared/BaseVenueCard';
 import { BaseVenue } from '@/types/shared';
+import { CONSTANTS } from '@/constants';
 
 // Extend the base props for web-specific functionality
 export interface VenueCardProps extends Omit<BaseVenueCardProps, 'venue'> {
@@ -50,9 +51,16 @@ export function VenueCard({
       city: location?.split(',')[0]?.trim() || 'City not specified',
       state: location?.split(',')[1]?.trim() || 'State not specified',
       zipCode: '',
+      country: 'United States',
     },
-    images: image ? [image] : [],
-    category: category || 'Venue',
+    images: image ? [{
+      id: '1',
+      url: image,
+      alt: name,
+      order: 0,
+      isPrimary: true
+    }] : [],
+    category: (category as keyof typeof CONSTANTS.CATEGORIES) || 'WEDDING',
     capacity: {
       min: guestCapacity || 1,
       max: guestCapacity || 100,
@@ -65,8 +73,38 @@ export function VenueCard({
     rating,
     reviewCount,
     amenities: Array.isArray(amenities) 
-      ? amenities.reduce((acc, amenity) => ({ ...acc, [amenity]: true }), {})
-      : amenities || {},
+      ? amenities.reduce((acc, amenity) => ({ ...acc, [amenity]: true }), {
+          PARKING: false,
+          WIFI: false,
+          CATERING: false,
+          AUDIO_VISUAL: false,
+          STAGE: false,
+          DANCE_FLOOR: false,
+          BAR: false,
+          RESTROOMS: false,
+          ACCESSIBILITY: false,
+          OUTDOOR_SPACE: false,
+          KITCHEN: false,
+          SECURITY: false,
+          VALET: false,
+          TRANSPORTATION: false,
+        })
+      : {
+          PARKING: false,
+          WIFI: false,
+          CATERING: false,
+          AUDIO_VISUAL: false,
+          STAGE: false,
+          DANCE_FLOOR: false,
+          BAR: false,
+          RESTROOMS: false,
+          ACCESSIBILITY: false,
+          OUTDOOR_SPACE: false,
+          KITCHEN: false,
+          SECURITY: false,
+          VALET: false,
+          TRANSPORTATION: false,
+        },
     availability: {
       startDate: new Date().toISOString(),
       endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
@@ -77,6 +115,18 @@ export function VenueCard({
       id: '',
       name: '',
       email: '',
+      verified: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    status: 'active',
+    featured: false,
+    verified: false,
+    tags: [],
+    contactInfo: {
+      email: '',
+      phone: '',
+      preferredContact: 'email' as const,
     },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

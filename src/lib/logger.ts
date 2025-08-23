@@ -47,13 +47,9 @@ export class Logger {
     this.info(message, context);
   }
 
-  private static sendToMonitoring(level: string, message: string, context?: LogContext): void {
-    // TODO: Implement production logging service (e.g., Sentry, LogRocket)
-    // This is a placeholder for production error tracking
-    if (process.env.NODE_ENV === 'production') {
-      // Example: Sentry.captureMessage(message, { level, extra: context });
-      // Example: LogRocket.track(level, { message, ...context });
-    }
+  private static sendToMonitoring(_level: string, _message: string, _context?: LogContext): void {
+    // TODO: Implement monitoring service integration
+    // For now, this is a placeholder
   }
 }
 

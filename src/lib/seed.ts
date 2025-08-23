@@ -6,8 +6,7 @@
  * Make sure you have tsx installed globally or as a dev dependency.
  */
 import { listingsService, usersService, favoritesService } from '@/services/database';
-import { storageService } from '@/services/storage';
-import type { Listing, ListingFormValues } from '@/types/listing';
+import type { Listing } from '@/types/listing';
 import type { UserProfile } from '@/types/user';
 
 // Sample data for seeding the database

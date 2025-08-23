@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, X, Save, Bookmark, Filter, MapPin, Users, DollarSign, Star, Clock } from 'lucide-react';
+import { CalendarIcon, X, Save, Bookmark, Filter, MapPin, Users, DollarSign, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
@@ -150,7 +150,18 @@ export function EnhancedFilters({ searchParams, onFilterChange, onSaveSearch }: 
   };
 
   const loadSavedSearch = (savedSearch: SavedSearch) => {
-    setFilters(savedSearch.filters);
+    setFilters({
+      location: savedSearch.filters.location || '',
+      category: savedSearch.filters.category || '',
+      minPrice: savedSearch.filters.minPrice || MIN_PRICE,
+      maxPrice: savedSearch.filters.maxPrice || MAX_PRICE,
+      guestCapacity: savedSearch.filters.guestCapacity || '',
+      amenities: savedSearch.filters.amenities || [],
+      sortBy: savedSearch.filters.sortBy || 'rating_desc',
+      date: savedSearch.filters.date || '',
+      rating: savedSearch.filters.rating || '',
+      distance: savedSearch.filters.distance || ''
+    });
     setPriceRange([savedSearch.filters.minPrice || MIN_PRICE, savedSearch.filters.maxPrice || MAX_PRICE]);
     setSelectedDate(savedSearch.filters.date ? new Date(savedSearch.filters.date) : undefined);
     onFilterChange(savedSearch.filters);

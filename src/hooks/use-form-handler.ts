@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useForm, UseFormReturn, FieldValues, Path, UseFormProps } from 'react-hook-form';
+import { useForm, UseFormReturn, UseFormHandleSubmit, FieldValues, Path, UseFormProps } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
@@ -15,9 +15,10 @@ interface UseFormHandlerOptions<T extends FieldValues> extends Omit<UseFormProps
   errorMessage?: string;
 }
 
-interface UseFormHandlerReturn<T extends FieldValues> extends UseFormReturn<T> {
+interface UseFormHandlerReturn<T extends FieldValues> extends Omit<UseFormReturn<T>, 'handleSubmit'> {
   isSubmitting: boolean;
-  handleSubmit: (data: T) => Promise<void>;
+  handleSubmit: UseFormHandleSubmit<T>;
+  submitForm: (data: T) => Promise<void>;
   resetForm: () => void;
   setFieldError: (field: Path<T>, message: string) => void;
   clearFieldError: (field: Path<T>) => void;
@@ -98,7 +99,8 @@ export function useFormHandler<T extends FieldValues>({
   return {
     ...form,
     isSubmitting,
-    handleSubmit,
+    handleSubmit: form.handleSubmit,
+    submitForm: handleSubmit,
     resetForm,
     setFieldError,
     clearFieldError,
@@ -145,7 +147,11 @@ export function getFieldError<T extends FieldValues>(
   form: UseFormReturn<T>,
   field: Path<T>
 ): string | undefined {
-  return form.formState.errors[field]?.message;
+  const error = form.formState.errors[field];
+  if (typeof error?.message === 'string') {
+    return error.message;
+  }
+  return undefined;
 }
 
 // Utility function to check if form is valid

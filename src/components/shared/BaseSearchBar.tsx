@@ -163,8 +163,8 @@ export function BaseSearchBar({
                   value={filters.priceRange?.min || ''}
                   onChange={(e) => handleFiltersChange({
                     priceRange: {
-                      ...filters.priceRange,
-                      min: parseInt(e.target.value) || undefined
+                      min: parseInt(e.target.value) || 0,
+                      max: filters.priceRange?.max || 1000
                     }
                   })}
                   className="flex-1 px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground"
@@ -175,8 +175,8 @@ export function BaseSearchBar({
                   value={filters.priceRange?.max || ''}
                   onChange={(e) => handleFiltersChange({
                     priceRange: {
-                      ...filters.priceRange,
-                      max: parseInt(e.target.value) || undefined
+                      min: filters.priceRange?.min || 0,
+                      max: parseInt(e.target.value) || 1000
                     }
                   })}
                   className="flex-1 px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground"

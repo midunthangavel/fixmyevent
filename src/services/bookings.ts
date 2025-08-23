@@ -9,14 +9,7 @@ import {
   query, 
   where, 
   orderBy, 
-  limit, 
-  startAfter, 
   onSnapshot, 
-  Timestamp,
-  writeBatch,
-  runTransaction,
-  QuerySnapshot,
-  DocumentData,
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -200,8 +193,6 @@ export class BookingService {
         throw new Error('Service not found');
       }
 
-      const listing = listingSnap.data() as Listing;
-
       // Check if there are conflicting bookings
       const conflictingBookings = await this.getConflictingBookings(serviceId, bookingDate, category);
       
@@ -211,9 +202,9 @@ export class BookingService {
 
       // Additional availability checks based on category
       if (category === 'Venue') {
-        await this.checkVenueAvailability(serviceId, bookingDate);
+        await this.checkVenueAvailability(serviceId);
       } else if (category === 'Photography') {
-        await this.checkPhotographyAvailability(serviceId, bookingDate);
+        await this.checkPhotographyAvailability(serviceId);
       }
       // Add more category-specific checks as needed
     } catch (error) {
@@ -251,7 +242,7 @@ export class BookingService {
   }
 
   // Check if there's a date conflict
-  private hasDateConflict(booking: Booking, newBookingDate: any, category: string): boolean {
+  private hasDateConflict(booking: Booking, newBookingDate: any, _category: string): boolean {
     // This is a simplified conflict check - you might want to implement more sophisticated logic
     const existingDate = booking.bookingDate?.toDate?.() || new Date(booking.bookingDate);
     const newDate = newBookingDate?.toDate?.() || new Date(newBookingDate);
@@ -262,13 +253,13 @@ export class BookingService {
   }
 
   // Check venue-specific availability
-  private async checkVenueAvailability(serviceId: string, bookingDate: any): Promise<void> {
+  private async checkVenueAvailability(_serviceId: string): Promise<void> {
     // Implement venue-specific availability logic
     // e.g., check capacity, existing bookings, etc.
   }
 
   // Check photography-specific availability
-  private async checkPhotographyAvailability(serviceId: string, bookingDate: any): Promise<void> {
+  private async checkPhotographyAvailability(_serviceId: string): Promise<void> {
     // Implement photography-specific availability logic
     // e.g., check photographer's schedule, equipment availability, etc.
   }
@@ -280,10 +271,10 @@ export class BookingService {
       const listingSnap = await getDoc(listingRef);
       
       if (listingSnap.exists()) {
-        const listing = listingSnap.data() as Listing;
-        if (listing.ownerId) {
+        const listingData = listingSnap.data() as Listing;
+        if (listingData.ownerId) {
           await addDoc(collection(db, COLLECTIONS.NOTIFICATIONS), {
-            userId: listing.ownerId,
+            userId: listingData.ownerId,
             type: title,
             message,
             timestamp: serverTimestamp(),

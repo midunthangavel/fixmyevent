@@ -1,18 +1,18 @@
 {
   "main": "lib/index.js",
   "scripts": {
-    "dev": "tsx --watch src/index.ts",
-    "genkit:start": "genkit start -- tsx --watch src/genkit-sample.ts",
+    "dev": "tsx --watch src/index.ts --port 5001",
+    "genkit:start": "genkit start -- tsx --watch src/genkit-sample.ts --port 11434",
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "serve": "npm run build && firebase emulators:start --only functions",
+    "serve": "npm run build && firebase emulators:start --only functions --port 5001",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "jest --port 8016",
+    "test:watch": "jest --watch --port 8016"
   },
   "name": "fixmyevent-functions",
   "engines": {

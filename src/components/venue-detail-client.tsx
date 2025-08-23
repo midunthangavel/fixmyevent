@@ -2,7 +2,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Star, MapPin, Wifi, ParkingSquare, Utensils, Wind, Calendar as CalendarIcon, Loader, MessageSquare } from 'lucide-react';
+import { Star, MapPin, Loader, MessageSquare } from 'lucide-react';
 // Removed Firebase imports for demo mode
 import { useAuth } from '@/context/auth-context';
 import { addDays, format } from 'date-fns';
@@ -38,7 +38,7 @@ export function VenueDetailClient({ venue: initialVenue }: { venue: Listing }) {
   const { user } = useAuth();
   const router = useRouter();
 
-  const [venue, setVenue] = useState(initialVenue);
+  const [venue] = useState(initialVenue);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [guests, setGuests] = useState(50);
   const [loading, setLoading] = useState(false);
@@ -127,23 +127,8 @@ export function VenueDetailClient({ venue: initialVenue }: { venue: Listing }) {
     try {
         // Mock conversation creation for demo mode
         const conversationId = `convo-${Date.now()}`;
-        const mockConversation = {
-            id: conversationId,
-            participants: {
-                [user.uid]: { name: user.displayName || user.email, avatar: '' },
-                'host': { name: 'Venue Host', avatar: '', isHost: true }
-            },
-            messages: [{
-                id: 'initial',
-                senderId: 'host',
-                text: `Hello! I'm the host of ${venue.name}. How can I help you with your event planning?`,
-                timestamp: new Date()
-            }],
-            lastMessage: {
-                text: `Hello! I'm the host of ${venue.name}. How can I help you with your event planning?`,
-                timestamp: new Date()
-            }
-        };
+        // Mock conversation data
+        // Mock conversation data for demo mode
         
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -173,17 +158,9 @@ export function VenueDetailClient({ venue: initialVenue }: { venue: Listing }) {
     );
   };
 
-  const isDatePending = (date: Date) => {
-    return pendingDates.some(pendingDate => 
-      format(pendingDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-    );
-  };
 
-  const getDateClassName = (date: Date) => {
-    if (isDateBooked(date)) return 'bg-red-500 text-white';
-    if (isDatePending(date)) return 'bg-yellow-500 text-white';
-    return '';
-  };
+
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -247,11 +224,13 @@ export function VenueDetailClient({ venue: initialVenue }: { venue: Listing }) {
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-3">Amenities</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {venue.amenities?.map((amenity, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm">
-                      <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      <span>{amenity}</span>
-                    </div>
+                  {Object.entries(venue.amenities || {}).map(([amenity, available]) => (
+                    available && (
+                      <div key={amenity} className="flex items-center gap-2 text-sm">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span>{amenity.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}</span>
+                      </div>
+                    )
                   ))}
                 </div>
               </div>

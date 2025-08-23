@@ -4,7 +4,7 @@ import {
   getDownloadURL, 
   deleteObject, 
   listAll,
-  StorageReference,
+
   UploadResult
 } from 'firebase/storage';
 import { storage } from '@/lib/firebase';

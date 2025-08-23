@@ -5,7 +5,7 @@ import {
   getDocs, 
   addDoc, 
   updateDoc, 
-  deleteDoc, 
+ 
   query, 
   where, 
   orderBy, 
@@ -15,7 +15,7 @@ import {
 import { db } from '@/lib/firebase';
 import type { 
   Package, 
-  PackageItem, 
+ 
   PackageBooking, 
   PackageTemplate,
   PackageComparison,
@@ -378,11 +378,11 @@ export class PackageService {
 
   // Search packages
   async searchPackages(
-    query: string,
+    searchQuery: string,
     type?: string,
     minPrice?: number,
     maxPrice?: number,
-    location?: string
+    _location?: string
   ): Promise<Package[]> {
     try {
       let q = query(
@@ -395,19 +395,22 @@ export class PackageService {
       // or integrate with a search service like Algolia
       
       const querySnapshot = await getDocs(q);
-      let packages = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-      })) as Package[];
+      let packages = querySnapshot.docs.map(doc => {
+        const data = doc.data() as any;
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as Package;
+      });
 
       // Filter by search criteria
-      if (query) {
+      if (searchQuery) {
         packages = packages.filter(pkg => 
-          pkg.name.toLowerCase().includes(query.toLowerCase()) ||
-          pkg.description.toLowerCase().includes(query.toLowerCase()) ||
-          pkg.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+          pkg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          pkg.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          pkg.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
         );
       }
 

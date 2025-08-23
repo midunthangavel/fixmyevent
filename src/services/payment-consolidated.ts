@@ -381,7 +381,7 @@ export class PaymentService {
   }
 
   // Private methods for payment gateway integration
-  private async processWithGateway(payment: Payment, methodData: any): Promise<PaymentResult> {
+  private async processWithGateway(payment: Payment, _methodData: any): Promise<PaymentResult> {
     // Simulate payment gateway processing
     // Replace this with actual payment gateway integration (Stripe, PayPal, etc.)
     
@@ -406,7 +406,7 @@ export class PaymentService {
     });
   }
 
-  private async processRefundWithGateway(payment: Payment, amount: number, reason?: string): Promise<PaymentResult> {
+  private async processRefundWithGateway(_payment: Payment, _amount: number, _reason?: string): Promise<PaymentResult> {
     // Simulate refund processing
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -446,6 +446,7 @@ export class PaymentService {
 
     for (let i = digits.length - 1; i >= 0; i--) {
       let digit = digits[i];
+      if (digit === undefined) continue;
 
       if (isEven) {
         digit *= 2;

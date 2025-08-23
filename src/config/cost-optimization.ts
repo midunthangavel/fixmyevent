@@ -30,14 +30,11 @@ export interface CostOptimizationConfig {
 
   // Database Configuration
   database: {
-    primary: 'supabase' | 'planetscale' | 'neon' | 'sqlite' | 'firebase';
-    fallbacks: string[];
+    primary: 'firebase';
     enableCaching: boolean;
     maxCacheSize: number;
     cacheTTL: number;
-    connectionPooling: boolean;
-    maxConnections: number;
-    enableReadReplicas: boolean;
+    enableOfflineMode: boolean;
   };
 
   // Payment Configuration
@@ -64,62 +61,27 @@ export interface CostOptimizationConfig {
 
   // Hosting Configuration
   hosting: {
-    primary: 'vercel' | 'netlify' | 'firebase' | 'github-pages';
+    primary: 'vercel';
     fallbacks: string[];
-    enableCDN: boolean;
+    enableImageOptimization: boolean;
+    enableCodeSplitting: boolean;
+    enableTreeShaking: boolean;
     enableCompression: boolean;
-    enableCaching: boolean;
-    cacheHeaders: {
-      static: string;
-      dynamic: string;
-      api: string;
-    };
+    enableCDN: boolean;
+    enableFontOptimization: boolean;
+    bundleAnalysis: boolean;
   };
 
   // Monitoring Configuration
   monitoring: {
+    enableCostTracking: boolean;
     enablePerformanceMonitoring: boolean;
     enableErrorTracking: boolean;
-    enableCostTracking: boolean;
-    providers: {
-      performance: 'web-vitals' | 'sentry' | 'custom';
-      errors: 'sentry' | 'rollbar' | 'custom';
-      costs: 'custom';
-    };
     thresholds: {
+      maxMonthlyCost: number;
       maxResponseTime: number;
       maxErrorRate: number;
-      maxMonthlyCost: number;
     };
-  };
-
-  // Caching Strategy
-  caching: {
-    enableRedis: boolean;
-    enableLocalStorage: boolean;
-    enableServiceWorker: boolean;
-    strategies: {
-      static: 'cache-first' | 'stale-while-revalidate' | 'network-first';
-      dynamic: 'cache-first' | 'stale-while-revalidate' | 'network-first';
-      api: 'cache-first' | 'stale-while-revalidate' | 'network-first';
-    };
-    maxAge: {
-      static: number;
-      dynamic: number;
-      api: number;
-    };
-  };
-
-  // Performance Optimization
-  performance: {
-    enableLazyLoading: boolean;
-    enableCodeSplitting: boolean;
-    enableTreeShaking: boolean;
-    enableMinification: boolean;
-    enableCompression: boolean;
-    enableImageOptimization: boolean;
-    enableFontOptimization: boolean;
-    bundleAnalysis: boolean;
   };
 }
 
@@ -151,14 +113,11 @@ export const defaultCostOptimizationConfig: CostOptimizationConfig = {
   },
 
   database: {
-    primary: 'supabase',
-    fallbacks: ['planetscale', 'neon', 'sqlite'],
+    primary: 'firebase',
     enableCaching: true,
     maxCacheSize: 100,
     cacheTTL: 3600000, // 1 hour
-    connectionPooling: true,
-    maxConnections: 10,
-    enableReadReplicas: false,
+    enableOfflineMode: true,
   },
 
   payment: {
@@ -185,57 +144,24 @@ export const defaultCostOptimizationConfig: CostOptimizationConfig = {
   hosting: {
     primary: 'vercel',
     fallbacks: ['netlify', 'github-pages'],
-    enableCDN: true,
+    enableImageOptimization: true,
+    enableCodeSplitting: true,
+    enableTreeShaking: true,
     enableCompression: true,
-    enableCaching: true,
-    cacheHeaders: {
-      static: 'public, max-age=31536000, immutable', // 1 year
-      dynamic: 'public, max-age=3600, s-maxage=86400', // 1 hour, 1 day on CDN
-      api: 'public, max-age=300, s-maxage=3600', // 5 minutes, 1 hour on CDN
-    },
+    enableCDN: true,
+    enableFontOptimization: true,
+    bundleAnalysis: false, // Disable in production to save build time
   },
 
   monitoring: {
+    enableCostTracking: true,
     enablePerformanceMonitoring: true,
     enableErrorTracking: true,
-    enableCostTracking: true,
-    providers: {
-      performance: 'web-vitals',
-      errors: 'sentry',
-      costs: 'custom',
-    },
     thresholds: {
+      maxMonthlyCost: 100,
       maxResponseTime: 2000, // 2 seconds
       maxErrorRate: 0.01, // 1%
-      maxMonthlyCost: 100, // $100/month
     },
-  },
-
-  caching: {
-    enableRedis: false, // Start without Redis to save costs
-    enableLocalStorage: true,
-    enableServiceWorker: true,
-    strategies: {
-      static: 'cache-first',
-      dynamic: 'stale-while-revalidate',
-      api: 'stale-while-revalidate',
-    },
-    maxAge: {
-      static: 31536000, // 1 year
-      dynamic: 3600, // 1 hour
-      api: 300, // 5 minutes
-    },
-  },
-
-  performance: {
-    enableLazyLoading: true,
-    enableCodeSplitting: true,
-    enableTreeShaking: true,
-    enableMinification: true,
-    enableCompression: true,
-    enableImageOptimization: true,
-    enableFontOptimization: true,
-    bundleAnalysis: false, // Disable in production to save build time
   },
 };
 
@@ -258,12 +184,11 @@ export const getCostOptimizationConfig = (): CostOptimizationConfig => {
         },
         database: {
           ...defaultCostOptimizationConfig.database,
-          primary: 'sqlite', // Use local database for development
-          fallbacks: ['supabase'],
+          primary: 'firebase',
         },
         hosting: {
           ...defaultCostOptimizationConfig.hosting,
-          primary: 'localhost',
+          primary: 'vercel',
         },
       };
 
@@ -281,8 +206,7 @@ export const getCostOptimizationConfig = (): CostOptimizationConfig => {
         },
         database: {
           ...defaultCostOptimizationConfig.database,
-          primary: 'supabase', // Use free tier
-          fallbacks: ['planetscale', 'neon'],
+          primary: 'firebase', // Use Firebase
         },
         monitoring: {
           ...defaultCostOptimizationConfig.monitoring,
@@ -301,16 +225,20 @@ export const getCostOptimizationConfig = (): CostOptimizationConfig => {
           ...defaultCostOptimizationConfig.ai,
           primary: 'local',
           fallback: 'local',
-          enableCaching: false,
+          costLimits: {
+            ...defaultCostOptimizationConfig.ai.costLimits,
+            maxMonthlySpend: 0, // No cost for testing
+          },
         },
         database: {
           ...defaultCostOptimizationConfig.database,
-          primary: 'sqlite',
-          enableCaching: false,
+          primary: 'firebase',
+          enableCaching: false, // Disable caching for tests
         },
-        payment: {
-          ...defaultCostOptimizationConfig.payment,
-          enableLocalPayments: true,
+        monitoring: {
+          ...defaultCostOptimizationConfig.monitoring,
+          enableCostTracking: false,
+          enablePerformanceMonitoring: false,
         },
       };
 
@@ -327,27 +255,17 @@ export class CostCalculator {
   static calculateAICosts(
     requests: number,
     provider: string,
-    model: string
+    _model: string
   ): number {
-    const costs = {
-      openai: {
-        'gpt-3.5-turbo': 0.002, // $0.002 per 1K tokens
-        'gpt-4': 0.03, // $0.03 per 1K tokens
-      },
-      claude: {
-        'claude-3-haiku-20240307': 0.00025, // $0.00025 per 1K tokens
-        'claude-3-sonnet-20240229': 0.003, // $0.003 per 1K tokens
-      },
-      huggingface: {
-        'mistralai/Mistral-7B-Instruct-v0.2': 0, // Free tier
-      },
-      local: {
-        'mistral': 0, // No ongoing costs
-      },
+    const costPerRequest = {
+      'local': 0,
+      'huggingface': 0.0001,
+      'openai': 0.002,
+      'claude': 0.0008,
     };
 
-    const costPerRequest = costs[provider as keyof typeof costs]?.[model as any] || 0;
-    return requests * costPerRequest;
+    const cost = costPerRequest[provider as keyof typeof costPerRequest] || 0;
+    return requests * cost;
   }
 
   /**
@@ -362,22 +280,6 @@ export class CostCalculator {
       firebase: {
         storage: 0.026, // $0.026 per GB
         requests: 0.0000006, // $0.0000006 per document read
-      },
-      supabase: {
-        storage: 0, // Free tier up to 500MB
-        requests: 0, // Free tier up to 50K requests
-      },
-      planetscale: {
-        storage: 0, // Free tier up to 1GB
-        requests: 0, // Free tier up to 1B reads
-      },
-      neon: {
-        storage: 0, // Free tier up to 3GB
-        requests: 0, // Free tier
-      },
-      sqlite: {
-        storage: 0, // No ongoing costs
-        requests: 0, // No ongoing costs
       },
     };
 
@@ -400,28 +302,24 @@ export class CostCalculator {
   ): number {
     const costs = {
       vercel: {
-        bandwidth: 0, // Free tier up to 100GB
-        builds: 0, // Free tier up to 100 builds/month
+        bandwidth: 0.15, // $0.15 per GB
+        build: 0.002, // $0.002 per minute
       },
       netlify: {
-        bandwidth: 0, // Free tier up to 100GB
-        builds: 0, // Free tier up to 300 build minutes
-      },
-      firebase: {
-        bandwidth: 0, // Free tier up to 360MB/day
-        builds: 0, // No build costs
+        bandwidth: 0.15, // $0.15 per GB
+        build: 0.002, // $0.002 per minute
       },
       'github-pages': {
-        bandwidth: 0, // Completely free
-        builds: 0, // Completely free
+        bandwidth: 0, // Free
+        build: 0, // Free
       },
     };
 
     const providerCosts = costs[provider as keyof typeof costs];
     if (!providerCosts) return 0;
 
-    const bandwidthCost = Math.max(0, bandwidthGB - 100) * 0.15; // $0.15 per GB over limit
-    const buildCost = Math.max(0, buildMinutes - 300) * 0.01; // $0.01 per minute over limit
+    const bandwidthCost = Math.max(0, bandwidthGB - 100) * providerCosts.bandwidth;
+    const buildCost = Math.max(0, buildMinutes - 300) * providerCosts.build;
 
     return bandwidthCost + buildCost;
   }
@@ -429,39 +327,46 @@ export class CostCalculator {
   /**
    * Calculate total monthly costs
    */
-  static calculateTotalMonthlyCosts(config: CostOptimizationConfig): {
-    ai: number;
-    database: number;
-    hosting: number;
-    total: number;
-    savings: number;
-  } {
-    // Estimate usage based on configuration
-    const aiCosts = this.calculateAICosts(1000, config.ai.primary, config.ai.models[config.ai.primary]);
-    const dbCosts = this.calculateDatabaseCosts(1, 100000, config.database.primary);
-    const hostingCosts = this.calculateHostingCosts(50, 200, config.hosting.primary);
+  static calculateTotalMonthlyCosts(
+    aiRequests: number,
+    aiProvider: string,
+    _aiModel: string,
+    dbStorageGB: number,
+    dbRequests: number,
+    dbProvider: string,
+    hostingBandwidthGB: number,
+    hostingBuildMinutes: number,
+    hostingProvider: string
+  ): number {
+    const aiCosts = this.calculateAICosts(aiRequests, aiProvider, _aiModel);
+    const dbCosts = this.calculateDatabaseCosts(dbStorageGB, dbRequests, dbProvider);
+    const hostingCosts = this.calculateHostingCosts(hostingBandwidthGB, hostingBuildMinutes, hostingProvider);
 
-    const total = aiCosts + dbCosts + hostingCosts;
+    return aiCosts + dbCosts + hostingCosts;
+  }
 
-    // Calculate savings compared to original setup
-    const originalCosts = {
-      ai: this.calculateAICosts(1000, 'openai', 'gpt-4'),
-      database: this.calculateDatabaseCosts(1, 100000, 'firebase'),
-      hosting: this.calculateHostingCosts(50, 200, 'firebase'),
-    };
+  /**
+   * Check if costs exceed limits
+   */
+  static checkCostLimits(
+    currentCosts: number,
+    limits: CostOptimizationConfig
+  ): { exceeded: boolean; warnings: string[] } {
+    const warnings: string[] = [];
+    let exceeded = false;
 
-    const originalTotal = originalCosts.ai + originalCosts.database + originalCosts.hosting;
-    const savings = originalTotal - total;
+    if (currentCosts > limits.monitoring.thresholds.maxMonthlyCost) {
+      exceeded = true;
+      warnings.push(`Monthly costs ($${currentCosts.toFixed(2)}) exceed limit ($${limits.monitoring.thresholds.maxMonthlyCost})`);
+    }
 
-    return {
-      ai: aiCosts,
-      database: dbCosts,
-      hosting: hostingCosts,
-      total,
-      savings,
-    };
+    if (currentCosts > limits.monitoring.thresholds.maxMonthlyCost * 0.8) {
+      warnings.push(`Monthly costs are approaching limit (${((currentCosts / limits.monitoring.thresholds.maxMonthlyCost) * 100).toFixed(1)}%)`);
+    }
+
+    return { exceeded, warnings };
   }
 }
 
-// Export configuration
+// Export the configuration
 export const costOptimizationConfig = getCostOptimizationConfig();

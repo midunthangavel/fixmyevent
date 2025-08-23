@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Smartphone, 
   Wifi, 
-  Download, 
   Zap, 
   Shield, 
   Clock,

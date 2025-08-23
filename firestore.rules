@@ -9,10 +9,10 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Listings collection
+    // Listings collection - FIXED: Added proper authentication and ownership validation
     match /listings/{listingId} {
-      allow read: if resource.data.status == 'published'; // Only published listings are public
-      allow create: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow read: if request.auth != null && resource.data.status == 'published';
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
       allow update: if request.auth != null && request.auth.uid == resource.data.ownerId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }

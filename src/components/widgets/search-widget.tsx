@@ -4,19 +4,13 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Search, 
-  MapPin, 
-  Calendar, 
-  Users, 
-  Filter,
-  X,
-  PaperPlane,
-  Mountain,
-  Building2,
+import {
+  Send,
   Palmtree,
-  Landmark
+  Search,
+  MapPin,
+  Calendar,
+  Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -50,25 +44,25 @@ export function SearchWidget({
 
   const suggestions = [
     {
-      icon: PaperPlane,
+      icon: Send,
       title: "Nearby",
       subtitle: "Find what's around you",
       category: "nearby"
     },
     {
-      icon: Mountain,
+      icon: Palmtree,
       title: "Pocono Mountains, PA",
       subtitle: "Popular lake destination",
       category: "mountain"
     },
     {
-      icon: Building2,
+      icon: Palmtree,
       title: "Orlando, FL",
       subtitle: "For sights like Walt Disney World Resort",
       category: "city"
     },
     {
-      icon: Landmark,
+      icon: Palmtree,
       title: "Philadelphia, PA",
       subtitle: "For its top-notch dining",
       category: "city"

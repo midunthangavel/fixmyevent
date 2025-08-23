@@ -1,7 +1,7 @@
 import { 
   collection, 
   doc, 
-  getDoc, 
+ 
   getDocs, 
   addDoc, 
   updateDoc, 
@@ -9,17 +9,17 @@ import {
   where, 
   orderBy, 
   serverTimestamp,
-  Timestamp 
+ 
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { 
   PaymentIntent, 
   StripePayment, 
   PaypalPayment, 
-  PaymentFormData,
   SavedPaymentMethod,
   Invoice 
 } from '@/types/payment';
+import { PAYMENT_STATUS, PAYMENT_METHOD } from '@/types/payment';
 
 // Collection names
 export const COLLECTIONS = {
@@ -43,8 +43,8 @@ export class PaymentService {
         id: crypto.randomUUID(),
         amount,
         currency,
-        paymentMethod: 'stripe', // Default to Stripe
-        status: 'pending',
+        paymentMethod: PAYMENT_METHOD.STRIPE, // Default to Stripe
+        status: PAYMENT_STATUS.PENDING,
         createdAt: new Date(),
         updatedAt: new Date(),
         metadata,
@@ -151,11 +151,14 @@ export class PaymentService {
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
-        const docRef = doc(this.paymentsRef, querySnapshot.docs[0].id);
-        await updateDoc(docRef, {
-          status,
-          updatedAt: serverTimestamp(),
-        });
+        const firstDoc = querySnapshot.docs[0];
+        if (firstDoc) {
+          const docRef = doc(this.paymentsRef, firstDoc.id);
+          await updateDoc(docRef, {
+            status,
+            updatedAt: serverTimestamp(),
+          });
+        }
       }
 
       // Also update payment intents
@@ -163,11 +166,14 @@ export class PaymentService {
       const intentSnapshot = await getDocs(intentQuery);
       
       if (!intentSnapshot.empty) {
-        const intentRef = doc(this.paymentIntentsRef, intentSnapshot.docs[0].id);
-        await updateDoc(intentRef, {
-          status,
-          updatedAt: serverTimestamp(),
-        });
+        const firstIntentDoc = intentSnapshot.docs[0];
+        if (firstIntentDoc) {
+          const intentRef = doc(this.paymentIntentsRef, firstIntentDoc.id);
+          await updateDoc(intentRef, {
+            status,
+            updatedAt: serverTimestamp(),
+          });
+        }
       }
     } catch (error) {
       console.error('Error updating payment status:', error);
@@ -236,8 +242,11 @@ export class PaymentService {
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
-        const docRef = doc(this.savedMethodsRef, querySnapshot.docs[0].id);
-        await updateDoc(docRef, { isActive: false });
+        const firstMethodDoc = querySnapshot.docs[0];
+        if (firstMethodDoc) {
+          const docRef = doc(this.savedMethodsRef, firstMethodDoc.id);
+          await updateDoc(docRef, { isActive: false });
+        }
       }
     } catch (error) {
       console.error('Error deleting saved payment method:', error);
@@ -248,7 +257,7 @@ export class PaymentService {
   // Create invoice
   async createInvoice(
     bookingId: string,
-    amount: number,
+    _amount: number,
     currency: string = 'usd',
     items: Array<{ description: string; quantity: number; unitPrice: number; total: number }>,
     dueDate: Date
@@ -261,14 +270,16 @@ export class PaymentService {
       const invoice: Invoice = {
         id: crypto.randomUUID(),
         bookingId,
+        invoiceNumber: `INV-${Date.now()}`,
         amount: total,
         currency,
-        status: 'pending',
+        status: PAYMENT_STATUS.PENDING,
         dueDate,
         items,
         subtotal,
         tax,
         total,
+        totalAmount: total,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -287,7 +298,7 @@ export class PaymentService {
   }
 
   // Get invoices for a user
-  async getUserInvoices(userId: string): Promise<Invoice[]> {
+  async getUserInvoices(_userId: string): Promise<Invoice[]> {
     try {
       // This would need to be implemented based on your data structure
       // For now, return empty array

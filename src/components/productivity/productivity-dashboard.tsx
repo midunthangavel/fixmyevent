@@ -10,10 +10,8 @@ import { Progress } from '@/components/ui/progress'
 import { 
   Calendar, 
   CheckCircle, 
-  Clock, 
   TrendingUp, 
   Zap, 
-  Users,
   DollarSign,
   Activity,
   Lightbulb,

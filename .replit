@@ -25,3 +25,24 @@ args = "npm run dev"
 
 [[ports]]
 localPort = 3000
+
+[[ports]]
+localPort = 3001
+
+[[ports]]
+localPort = 5000
+
+[[ports]]
+localPort = 5001
+
+[[ports]]
+localPort = 4000
+
+[[ports]]
+localPort = 8080
+
+[[ports]]
+localPort = 9099
+
+[[ports]]
+localPort = 9199

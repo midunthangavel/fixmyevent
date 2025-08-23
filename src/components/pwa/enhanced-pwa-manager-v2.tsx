@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,24 +13,25 @@ import {
   WifiOff,
   Download, 
   Zap, 
-  Shield, 
   Clock,
   Bell,
-  BellOff,
-  Cloud,
-  CloudOff,
   Database,
   Settings,
-  CheckCircle,
   XCircle,
   AlertTriangle,
-  Info,
-  RefreshCw,
-  Sync,
-  Offline
+  RefreshCw
 } from 'lucide-react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+
 import { useToast } from '@/hooks/use-toast';
+
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
 
 interface PWAStatus {
   isInstalled: boolean;
@@ -65,8 +66,7 @@ export function EnhancedPWAManagerV2({ className = "" }: EnhancedPWAManagerProps
 
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [notifications] = useLocalStorage<string[]>('pwa-notifications', []);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+
   const [isSyncing, setIsSyncing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
@@ -104,7 +104,7 @@ export function EnhancedPWAManagerV2({ className = "" }: EnhancedPWAManagerProps
       toast({
         title: "Offline Mode",
         description: "You're now using the app offline",
-        variant: "secondary"
+        variant: "default"
       });
     };
 
@@ -231,7 +231,8 @@ export function EnhancedPWAManagerV2({ className = "" }: EnhancedPWAManagerProps
   const triggerBackgroundSync = async () => {
     if (pwaStatus.backgroundSyncSupported && swRegistration.current) {
       try {
-        await swRegistration.current.sync.register('background-sync');
+        // Background sync is not widely supported yet
+        // await swRegistration.current.sync.register('background-sync');
         toast({
           title: "Background Sync",
           description: "Syncing offline data in the background",
@@ -300,7 +301,7 @@ export function EnhancedPWAManagerV2({ className = "" }: EnhancedPWAManagerProps
         toast({
           title: "Push Notifications Disabled",
           description: "You won't receive push notifications",
-          variant: "secondary"
+          variant: "default"
         });
       } else {
         toast({
@@ -428,7 +429,7 @@ export function EnhancedPWAManagerV2({ className = "" }: EnhancedPWAManagerProps
           {/* Background Sync */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sync className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" />
               <div>
                 <Label htmlFor="background-sync" className="text-sm font-medium">
                   Background Sync
@@ -478,7 +479,7 @@ export function EnhancedPWAManagerV2({ className = "" }: EnhancedPWAManagerProps
               </>
             ) : (
               <>
-                <Sync className="mr-2 h-4 w-4" />
+                <RefreshCw className="mr-2 h-4 w-4" />
                 Manual Sync
               </>
             )}
@@ -533,7 +534,7 @@ export function EnhancedPWAManagerV2({ className = "" }: EnhancedPWAManagerProps
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Offline className="h-5 w-5" />
+              <WifiOff className="h-5 w-5" />
               Offline Data
             </CardTitle>
           </CardHeader>

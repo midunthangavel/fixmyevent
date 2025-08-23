@@ -1,5 +1,3 @@
-import type { AppError } from '@/types/common';
-
 // Error codes for consistent error handling
 export const ERROR_CODES = {
   // Authentication errors
@@ -51,7 +49,7 @@ export const ERROR_CODES = {
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
 
 // Custom error classes
-export class AppError extends Error implements AppError {
+export class AppError extends Error {
   public code: ErrorCode;
   public statusCode: number;
   public details?: Record<string, any>;
@@ -197,6 +195,11 @@ export class ErrorHandler {
   static getErrorCode(error: unknown): ErrorCode {
     if (this.isAppError(error)) {
       return error.code;
+    }
+    
+    if (error && typeof error === 'object' && 'code' in error) {
+      const code = (error as any).code;
+      return code && typeof code === 'string' ? code as ErrorCode : ERROR_CODES.UNKNOWN_ERROR;
     }
     
     return ERROR_CODES.UNKNOWN_ERROR;

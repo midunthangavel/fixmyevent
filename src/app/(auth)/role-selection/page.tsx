@@ -50,7 +50,7 @@ export default function RoleSelectionPage() {
         <CardContent className="space-y-6">
           {/* User Option */}
           <div className="border-2 rounded-lg p-6 hover:border-primary/50 transition-colors cursor-pointer"
-               onClick={() => setSelectedRole('user')}>
+               onClick={() => handleRoleSelection('user')}>
             <div className="flex items-start space-x-4">
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Search className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -82,7 +82,7 @@ export default function RoleSelectionPage() {
 
           {/* Vendor Option */}
           <div className="border-2 rounded-lg p-6 hover:border-primary/50 transition-colors cursor-pointer"
-               onClick={() => setSelectedRole('vendor')}>
+               onClick={() => handleRoleSelection('vendor')}>
             <div className="flex items-start space-x-4">
               <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Store className="w-6 h-6 text-green-600 dark:text-green-400" />

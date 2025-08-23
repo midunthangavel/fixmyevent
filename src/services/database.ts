@@ -274,10 +274,10 @@ export class DatabaseService<T extends BaseEntity> {
   }
 
   // Get one document by field value
-  async getOneByField(field: keyof T, value: unknown): Promise<T | null> {
+  async getOneByField(field: keyof T, value: unknown): Promise<T | undefined> {
     try {
       const documents = await this.getByField(field, value);
-      return documents.length > 0 ? documents[0] : null;
+      return documents.length > 0 ? documents[0] : undefined;
     } catch (error) {
       const appError = ErrorHandler.handle(error);
       ErrorLogger.log(appError, { 

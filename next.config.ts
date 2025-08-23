@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Enable static export for Firebase hosting (commented for development)
+  // output: 'export',
+  
   // Disable strict mode in development to prevent double rendering
   reactStrictMode: process.env.NODE_ENV === 'production',
 

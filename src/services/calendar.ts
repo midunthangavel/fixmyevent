@@ -54,7 +54,8 @@ export class CalendarService {
 
       // If this is a booking event, sync with external calendars
       if (eventData.bookingId) {
-        await this.syncEventToExternalCalendars(eventData.userId, event);
+        const eventWithId = { ...event, id: docRef.id };
+        await this.syncEventToExternalCalendars(eventData.userId, eventWithId);
       }
 
       return docRef.id;
@@ -244,14 +245,14 @@ export class CalendarService {
         eventsUpdated: 0,
         eventsDeleted: 0,
         conflicts: [],
-        errors: [error.message],
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
         lastSyncAt: new Date(),
       };
     }
   }
 
   // Sync with Google Calendar
-  private async syncWithGoogleCalendar(integration: CalendarIntegration, result: SyncResult): Promise<void> {
+  private async syncWithGoogleCalendar(_integration: CalendarIntegration, result: SyncResult): Promise<void> {
     // In a real implementation, you would:
     // 1. Use Google Calendar API to fetch events
     // 2. Compare with local events
@@ -264,7 +265,7 @@ export class CalendarService {
   }
 
   // Sync with Outlook Calendar
-  private async syncWithOutlookCalendar(integration: CalendarIntegration, result: SyncResult): Promise<void> {
+  private async syncWithOutlookCalendar(_integration: CalendarIntegration, result: SyncResult): Promise<void> {
     // In a real implementation, you would:
     // 1. Use Microsoft Graph API to fetch events
     // 2. Compare with local events
@@ -315,7 +316,7 @@ export class CalendarService {
   }
 
   // Create Google Calendar event
-  private async createGoogleCalendarEvent(integration: CalendarIntegration, event: CalendarEvent): Promise<void> {
+  private async createGoogleCalendarEvent(_integration: CalendarIntegration, event: CalendarEvent): Promise<void> {
     try {
       Logger.info(`Creating Google Calendar event: ${event.title}`);
       
@@ -333,7 +334,7 @@ export class CalendarService {
   }
 
   // Create Outlook Calendar event
-  private async createOutlookCalendarEvent(integration: CalendarIntegration, event: CalendarEvent): Promise<void> {
+  private async createOutlookCalendarEvent(_integration: CalendarIntegration, event: CalendarEvent): Promise<void> {
     try {
       Logger.info(`Creating Outlook Calendar event: ${event.title}`);
       
@@ -351,7 +352,7 @@ export class CalendarService {
   }
 
   // Delete Google Calendar event
-  private async deleteGoogleCalendarEvent(integration: CalendarIntegration, eventId: string): Promise<void> {
+  private async deleteGoogleCalendarEvent(_integration: CalendarIntegration, eventId: string): Promise<void> {
     try {
       Logger.info(`Deleting Google Calendar event: ${eventId}`);
       
@@ -368,7 +369,7 @@ export class CalendarService {
   }
 
   // Delete Outlook Calendar event
-  private async deleteOutlookCalendarEvent(integration: CalendarIntegration, eventId: string): Promise<void> {
+  private async deleteOutlookCalendarEvent(_integration: CalendarIntegration, eventId: string): Promise<void> {
     try {
       Logger.info(`Deleting Outlook Calendar event: ${eventId}`);
       
@@ -439,15 +440,17 @@ export class CalendarService {
   }
 
   // Get or create calendar settings
-  async getOrCreateSettings(userId: string): Promise<CalendarSettings> {
+  async getOrCreateSettings(userId: string): Promise<CalendarSettings | null> {
     try {
       const q = query(this.settingsRef, where('userId', '==', userId));
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
-        const data = querySnapshot.docs[0].data();
+        const docSnapshot = querySnapshot.docs[0];
+        if (!docSnapshot) return null;
+        const data = docSnapshot.data();
         return {
-          id: querySnapshot.docs[0].id,
+          id: docSnapshot.id,
           ...data,
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date(),
@@ -457,38 +460,21 @@ export class CalendarService {
       // Create default settings
       const defaultSettings: Omit<CalendarSettings, 'id' | 'createdAt' | 'updatedAt'> = {
         userId,
-        general: {
-          timezone: 'UTC',
-          dateFormat: 'MM/DD/YYYY',
-          timeFormat: '12h',
-          workingDays: [1, 2, 3, 4, 5],
-          workingHours: {
-            start: '09:00',
-            end: '17:00',
-          },
+        workingHours: {
+          monday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
+          tuesday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
+          wednesday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
+          thursday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
+          friday: { isWorking: true, startTime: '09:00', endTime: '17:00' },
+          saturday: { isWorking: false, startTime: '10:00', endTime: '16:00' },
+          sunday: { isWorking: false, startTime: '10:00', endTime: '16:00' },
         },
-        booking: {
-          advanceBookingLimit: 365,
-          sameDayBooking: false,
-          lastMinuteBooking: false,
-          lastMinuteThreshold: 24,
-          maxBookingsPerSlot: 1,
-          bufferTime: 15,
-          autoConfirm: false,
-          requireApproval: true,
-        },
-        notifications: {
-          email: true,
-          push: true,
-          sms: false,
-          reminderTime: 24,
-        },
-        privacy: {
-          showAvailability: true,
-          showEventDetails: false,
-          allowBookingRequests: true,
-          requireContactInfo: true,
-        },
+        timezone: 'UTC',
+        defaultDuration: 60,
+        bufferTime: 15,
+        advanceBookingLimit: 365,
+        sameDayBooking: false,
+        autoConfirm: false,
       };
 
       const docRef = await addDoc(this.settingsRef, {
@@ -516,7 +502,9 @@ export class CalendarService {
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
-        const docRef = doc(this.settingsRef, querySnapshot.docs[0].id);
+        const docSnapshot = querySnapshot.docs[0];
+        if (!docSnapshot) return;
+        const docRef = doc(this.settingsRef, docSnapshot.id);
         await updateDoc(docRef, {
           ...updateData,
           updatedAt: serverTimestamp(),

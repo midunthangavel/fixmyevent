@@ -20,6 +20,9 @@ export function NetworkStatus() {
     } else {
       setShowStatus(false);
     }
+    
+    // Return undefined explicitly for other code paths
+    return undefined;
   }, [isOnline, isUpdateAvailable]);
 
   if (!showStatus) return null;

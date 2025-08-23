@@ -1,189 +1,136 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 
-// Cost Optimization Script
-// This script analyzes current costs and provides optimization recommendations
+/**
+ * Cost Optimization Script for FixMyEvent
+ * Analyzes current costs and suggests optimizations
+ */
 
-import { CostCalculator, costOptimizationConfig } from '../src/config/cost-optimization';
+import { costOptimizationConfig } from '../src/config/cost-optimization';
 
-console.log('💰 FixMyEvent Cost Optimization Analysis');
-console.log('========================================\n');
+console.log('🚀 FixMyEvent Cost Optimization Analysis\n');
 
 // Analyze current configuration
-console.log('📊 Current Configuration Analysis:');
-console.log('----------------------------------');
+console.log('📊 Current Configuration:');
+console.log(`   - AI Provider: ${costOptimizationConfig.ai.primary}`);
+console.log(`   - Database: ${costOptimizationConfig.database.primary}`);
+console.log(`   - Payment: ${costOptimizationConfig.payment.primary}`);
+console.log(`   - Hosting: ${costOptimizationConfig.hosting.primary}`);
 
-const currentConfig = costOptimizationConfig;
-console.log(`🤖 AI Primary: ${currentConfig.ai.primary}`);
-console.log(`🔄 AI Fallback: ${currentConfig.ai.fallback}`);
-console.log(`🗄️ Database Primary: ${currentConfig.database.primary}`);
-console.log(`💳 Payment Primary: ${currentConfig.payment.primary}`);
-console.log(`🌐 Hosting Primary: ${currentConfig.hosting.primary}`);
+// AI Cost Analysis
+console.log('\n🤖 AI Service Costs:');
+const aiCosts = {
+  local: 0,
+  huggingface: 0.0001,
+  openai: 0.002,
+  claude: 0.0008,
+};
 
-// Calculate costs
-console.log('\n📈 Cost Analysis:');
-console.log('------------------');
+Object.entries(aiCosts).forEach(([provider, cost]) => {
+  const monthlyCost = cost * 1000; // 1000 requests/month
+  console.log(`   - ${provider}: $${monthlyCost.toFixed(2)}/month (1000 requests)`);
+});
 
-const costs = CostCalculator.calculateTotalMonthlyCosts(currentConfig);
-console.log(`🤖 AI Services: $${costs.ai.toFixed(2)}/month`);
-console.log(`🗄️ Database: $${costs.database.toFixed(2)}/month`);
-console.log(`🌐 Hosting: $${costs.hosting.toFixed(2)}/month`);
-console.log(`💰 Total Monthly: $${costs.total.toFixed(2)}`);
-console.log(`💸 Monthly Savings: $${costs.savings.toFixed(2)}`);
-console.log(`📅 Annual Savings: $${(costs.savings * 12).toFixed(2)}`);
+// Database Cost Analysis
+console.log('\n🗄️ Database Costs:');
+const dbCosts = {
+  firebase: {
+    storage: 0.026, // $0.026 per GB
+    requests: 0.0000006, // $0.0000006 per document read
+  },
+};
 
-// Provide optimization recommendations
-console.log('\n🎯 Optimization Recommendations:');
-console.log('--------------------------------');
+Object.entries(dbCosts).forEach(([provider, costs]) => {
+  const storageCost = Math.max(0, 1 - 0.5) * costs.storage; // 1GB storage
+  const requestCost = Math.max(0, 100000 - 50000) * costs.requests; // 100K requests
+  const totalCost = storageCost + requestCost;
+  console.log(`   - ${provider}: $${totalCost.toFixed(4)}/month (1GB, 100K requests)`);
+});
 
-if (costs.total > 50) {
-  console.log('⚠️  Your monthly costs are above the target of $50');
-  
-  if (costs.ai > 25) {
-    console.log('🤖 AI Costs High:');
-    console.log('   - Switch to local AI (Ollama) for development');
-    console.log('   - Use Hugging Face free tier (2000 requests/month)');
-    console.log('   - Use GPT-3.5-turbo instead of GPT-4 (10x cheaper)');
-  }
-  
-  if (costs.database > 10) {
-    console.log('🗄️ Database Costs High:');
-    console.log('   - Migrate to Supabase free tier (500MB, 50K requests)');
-    console.log('   - Use PlanetScale free tier (1GB, 1B reads)');
-    console.log('   - Consider SQLite for local development');
-  }
-  
-  if (costs.hosting > 15) {
-    console.log('🌐 Hosting Costs High:');
-    console.log('   - Switch to Vercel free tier (100GB bandwidth)');
-    console.log('   - Use Netlify free tier (100GB bandwidth)');
-    console.log('   - Consider GitHub Pages (completely free)');
-  }
+// Hosting Cost Analysis
+console.log('\n🌐 Hosting Costs:');
+const hostingCosts = {
+  vercel: {
+    bandwidth: 0.15, // $0.15 per GB
+    build: 0.002, // $0.002 per minute
+  },
+  netlify: {
+    bandwidth: 0.15, // $0.15 per GB
+    build: 0.002, // $0.002 per minute
+  },
+  'github-pages': {
+    bandwidth: 0, // Free
+    build: 0, // Free
+  },
+};
+
+Object.entries(hostingCosts).forEach(([provider, costs]) => {
+  const bandwidthCost = Math.max(0, 50 - 100) * costs.bandwidth; // 50GB bandwidth
+  const buildCost = Math.max(0, 200 - 300) * costs.build; // 200 build minutes
+  const totalCost = bandwidthCost + buildCost;
+  console.log(`   - ${provider}: $${totalCost.toFixed(2)}/month (50GB, 200 builds)`);
+});
+
+// Payment Cost Analysis
+console.log('\n💳 Payment Processing Costs:');
+const paymentCosts = {
+  stripe: { percentage: 0.029, fixed: 30 },
+  square: { percentage: 0.026, fixed: 10 },
+  paypal: { percentage: 0.029, fixed: 30 },
+  bankTransfer: { percentage: 0, fixed: 3 },
+};
+
+Object.entries(paymentCosts).forEach(([provider, costs]) => {
+  const transactionCost = (1000 * costs.percentage) + costs.fixed; // $1000 transaction
+  console.log(`   - ${provider}: $${transactionCost.toFixed(2)} for $1000 transaction`);
+});
+
+// Cost Optimization Recommendations
+console.log('\n💡 Cost Optimization Recommendations:');
+
+// AI Optimization
+if (costOptimizationConfig.ai.primary !== 'local') {
+  console.log('   - Switch to local AI for development (free)');
+  console.log('   - Use HuggingFace for production (cheapest paid option)');
+}
+
+// Database Optimization
+console.log('   - Firebase has generous free tier (1GB storage, 50K reads/day)');
+console.log('   - Enable offline mode to reduce API calls');
+console.log('   - Use caching to minimize database reads');
+
+// Hosting Optimization
+console.log('   - Use Vercel for dynamic features (generous free tier)');
+console.log('   - Consider GitHub Pages for static hosting (free)');
+
+// Payment Optimization
+console.log('   - Use Square for small transactions (<$10)');
+console.log('   - Use Stripe for medium transactions ($10-$100)');
+console.log('   - Use bank transfer for large transactions (>$500)');
+
+// Monthly Cost Estimate
+console.log('\n💰 Monthly Cost Estimate:');
+const monthlyCosts = {
+  ai: aiCosts[costOptimizationConfig.ai.primary] * 1000,
+  database: 0.0001, // Firebase free tier
+  hosting: hostingCosts[costOptimizationConfig.hosting.primary]?.bandwidth * 50 || 0,
+  payment: 0, // Depends on transaction volume
+};
+
+const totalMonthlyCost = Object.values(monthlyCosts).reduce((sum, cost) => sum + cost, 0);
+console.log(`   - Total: $${totalMonthlyCost.toFixed(2)}/month`);
+
+if (totalMonthlyCost > costOptimizationConfig.monitoring.thresholds.maxMonthlyCost) {
+  console.log(`   ⚠️  Exceeds monthly limit of $${costOptimizationConfig.monitoring.thresholds.maxMonthlyCost}`);
 } else {
-  console.log('✅ Your costs are within the target range!');
+  console.log(`   ✅ Within monthly limit of $${costOptimizationConfig.monitoring.thresholds.maxMonthlyCost}`);
 }
 
-// Check specific optimizations
-console.log('\n🔍 Specific Optimizations:');
-console.log('----------------------------');
+// Implementation Steps
+console.log('\n🔧 Implementation Steps:');
+console.log('   1. Update .env.local with optimized settings');
+console.log('   2. Enable caching and offline mode');
+console.log('   3. Configure payment routing based on amount');
+console.log('   4. Set up cost monitoring alerts');
+console.log('   5. Review and optimize database queries');
 
-// AI Optimizations
-if (currentConfig.ai.primary !== 'local') {
-  console.log('🤖 AI Optimization:');
-  console.log('   - Install Ollama: curl -fsSL https://ollama.ai/install.sh | sh');
-  console.log('   - Download models: ollama pull mistral');
-  console.log('   - Set AI_PROVIDER=local in .env.local');
-}
-
-// Database Optimizations
-if (currentConfig.database.primary === 'firebase') {
-  console.log('🗄️ Database Optimization:');
-  console.log('   - Create Supabase account at https://supabase.com');
-  console.log('   - Export Firebase data');
-  console.log('   - Import to Supabase');
-  console.log('   - Update DATABASE_PROVIDER in .env.local');
-}
-
-// Payment Optimizations
-if (currentConfig.payment.primary === 'stripe') {
-  console.log('💳 Payment Optimization:');
-  console.log('   - Set up Square account (lower fees for small amounts)');
-  console.log('   - Enable local payment methods (cash, check)');
-  console.log('   - Use bank transfers for large amounts');
-}
-
-// Hosting Optimizations
-if (currentConfig.hosting.primary === 'firebase') {
-  console.log('🌐 Hosting Optimization:');
-  console.log('   - Create Vercel account at https://vercel.com');
-  console.log('   - Connect your GitHub repository');
-  console.log('   - Deploy automatically on push');
-}
-
-// Caching Optimizations
-if (!currentConfig.caching.enableServiceWorker) {
-  console.log('💾 Caching Optimization:');
-  console.log('   - Enable service worker caching');
-  console.log('   - Implement aggressive API response caching');
-  console.log('   - Use localStorage for user preferences');
-}
-
-// Performance Optimizations
-if (!currentConfig.performance.enableLazyLoading) {
-  console.log('⚡ Performance Optimization:');
-  console.log('   - Enable lazy loading for images and components');
-  console.log('   - Implement code splitting');
-  console.log('   - Enable tree shaking and minification');
-}
-
-// Implementation steps
-console.log('\n🚀 Implementation Steps:');
-console.log('-------------------------');
-
-console.log('Week 1: Local AI Setup');
-console.log('  - Run: npm run cost:setup');
-console.log('  - Start Ollama: ollama serve');
-console.log('  - Test local AI endpoints');
-
-console.log('\nWeek 2: Database Migration');
-console.log('  - Set up free database accounts');
-console.log('  - Export and import data');
-    console.log('  - Verify Firebase database connection');
-
-console.log('\nWeek 3: Hosting Migration');
-console.log('  - Set up free hosting accounts');
-console.log('  - Configure deployment');
-console.log('  - Test hosting performance');
-
-console.log('\nWeek 4: Payment Optimization');
-console.log('  - Set up alternative payment gateways');
-console.log('  - Configure payment routing');
-console.log('  - Test payment flows');
-
-// Monitoring and maintenance
-console.log('\n📊 Monitoring & Maintenance:');
-console.log('-----------------------------');
-
-console.log('Daily:');
-console.log('  - Check service status');
-console.log('  - Monitor error rates');
-console.log('  - Track API usage');
-
-console.log('\nWeekly:');
-console.log('  - Review cost reports');
-console.log('  - Analyze performance metrics');
-console.log('  - Update optimization strategies');
-
-console.log('\nMonthly:');
-console.log('  - Calculate total savings');
-console.log('  - Review service usage');
-console.log('  - Plan next optimization phase');
-
-// Success metrics
-console.log('\n🎯 Success Metrics:');
-console.log('--------------------');
-
-console.log('✅ Monthly costs < $50');
-console.log('✅ AI response time < 1 second');
-console.log('✅ Database queries < 100ms');
-console.log('✅ Page load time < 2 seconds');
-console.log('✅ No service outages');
-console.log('✅ Better user experience');
-
-// Final recommendations
-console.log('\n💡 Final Recommendations:');
-console.log('-------------------------');
-
-console.log('1. Start with free tiers and scale up only when needed');
-console.log('2. Implement aggressive caching to reduce API calls');
-console.log('3. Use local services for development');
-console.log('4. Monitor costs continuously');
-console.log('5. Test all optimizations thoroughly');
-console.log('6. Document all changes for team reference');
-
-console.log('\n🎉 Cost optimization setup complete!');
-console.log('Run "npm run cost:monitor" to track your progress.');
-console.log('Expected monthly savings: $55-280');
-console.log('Target monthly cost: $0-20');
-
-// Export for programmatic use
-export { costs, currentConfig };
+console.log('\n✨ Cost optimization complete!');

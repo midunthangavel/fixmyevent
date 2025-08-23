@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback, useRef } from 'react';
-import { config, isFeatureEnabled } from '@/config/environment';
+import { environment } from '@/config/environment';
 
 interface PerformanceMetrics {
   fcp: number | null; // First Contentful Paint
@@ -97,9 +97,11 @@ export function usePerformanceMonitoring() {
         const observer = new PerformanceObserver((list) => {
           const entries = list.getEntries();
           if (entries.length > 0) {
-            const fid = entries[0] as PerformanceEntry;
-            metrics.current.fid = fid.processingStart - fid.startTime;
-            reportMetric('fid', metrics.current.fid);
+            const fid = entries[0] as any;
+            if (fid.processingStart && fid.startTime) {
+              metrics.current.fid = fid.processingStart - fid.startTime;
+              reportMetric('fid', metrics.current.fid);
+            }
           }
         });
 
@@ -142,9 +144,11 @@ export function usePerformanceMonitoring() {
         const observer = new PerformanceObserver((list) => {
           const entries = list.getEntries();
           if (entries.length > 0) {
-            const ttfb = entries[0] as PerformanceEntry;
-            metrics.current.ttfb = ttfb.responseStart - ttfb.requestStart;
-            reportMetric('ttfb', metrics.current.ttfb);
+            const ttfb = entries[0] as any;
+            if (ttfb.responseStart && ttfb.requestStart) {
+              metrics.current.ttfb = ttfb.responseStart - ttfb.requestStart;
+              reportMetric('ttfb', metrics.current.ttfb);
+            }
           }
         });
 
@@ -180,7 +184,7 @@ export function usePerformanceMonitoring() {
 
   // Report metric to analytics
   const reportMetric = useCallback((name: string, value: number) => {
-    if (!isFeatureEnabled('analytics')) return;
+    if (!environment.monitoring.analytics.id) return;
 
     const rating = getRating(name, value);
     const metricData: PerformanceObserverEntry = {
@@ -190,7 +194,7 @@ export function usePerformanceMonitoring() {
     };
 
     // Send to analytics service
-    if (config.analytics.id) {
+    if (environment.monitoring.analytics.id) {
       // Example: Google Analytics 4
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'web_vitals', {
@@ -210,7 +214,7 @@ export function usePerformanceMonitoring() {
     }
 
     // Log in development
-    if (config.development.debugMode) {
+    if (environment.development.debugMode) {
       console.log(`Web Vital: ${name}`, {
         value: Math.round(value * 100) / 100,
         rating,
@@ -252,7 +256,7 @@ export function usePerformanceMonitoring() {
 
   // Initialize performance monitoring
   useEffect(() => {
-    if (!isFeatureEnabled('performance')) return;
+    if (!environment.monitoring.performance) return;
 
     // Wait for page to load
     if (document.readyState === 'loading') {
@@ -282,7 +286,7 @@ export function usePerformanceMonitoring() {
 
   // Monitor long tasks
   useEffect(() => {
-    if (!isFeatureEnabled('performance')) return;
+    if (!environment.monitoring.performance) return;
 
     if ('PerformanceObserver' in window) {
       try {

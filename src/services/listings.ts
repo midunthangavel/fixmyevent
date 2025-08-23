@@ -163,8 +163,16 @@ export async function createListing(listingData: Omit<Listing, 'id' | 'slug' | '
       throw new Error('Firebase not available for creating listings');
     }
 
-    const newListing = await listingsService.create(listingData);
-    return newListing as Listing;
+    const newListingId = await listingsService.create(listingData);
+    // Create a new listing object with the returned ID
+    const newListing: Listing = {
+      ...listingData,
+      id: newListingId,
+      slug: listingData.name.toLowerCase().replace(/\s+/g, '-'),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    return newListing;
   } catch (error) {
     logServiceError('ListingsService', 'createListing', error, { listingData });
     throw error;
@@ -180,7 +188,12 @@ export async function updateListing(id: string, updates: Partial<Listing>): Prom
       throw new Error('Firebase not available for updating listings');
     }
 
-    const updatedListing = await listingsService.update(id, updates);
+    await listingsService.update(id, updates);
+    // Get the updated listing
+    const updatedListing = await listingsService.getById(id);
+    if (!updatedListing) {
+      throw new Error('Failed to retrieve updated listing');
+    }
     return updatedListing as Listing;
   } catch (error) {
     logServiceError('ListingsService', 'updateListing', error, { id, updates });

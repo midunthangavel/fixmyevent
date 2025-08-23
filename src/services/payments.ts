@@ -5,23 +5,23 @@ import {
   getDocs, 
   addDoc, 
   updateDoc, 
-  deleteDoc, 
+ 
   query, 
   where, 
   orderBy, 
   serverTimestamp,
-  runTransaction
+
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { 
-  Payment, 
   PaymentFormData, 
-  InstallmentPlan, 
-  Escrow, 
   Invoice,
   PaymentStatus,
-  PaymentType 
+  Payment,
+  InstallmentPlan,
+  Escrow
 } from '@/types/payment';
+import { PAYMENT_STATUS, PAYMENT_METHOD } from '@/types/payment';
 import type { Booking } from '@/types/booking';
 
 // Collection names
@@ -119,11 +119,11 @@ export class PaymentService {
       const docRef = doc(this.paymentsRef, paymentId);
       const updateData: Partial<Payment> = {
         status,
-        updatedAt: serverTimestamp(),
+        updatedAt: new Date(),
       };
 
       if (status === 'completed') {
-        updateData.processedAt = serverTimestamp();
+        updateData.metadata = { ...updateData.metadata, processedAt: new Date().toISOString() };
       }
 
       if (metadata) {
@@ -144,20 +144,20 @@ export class PaymentService {
       const stripePaymentIntent = await this.createStripePaymentIntent(paymentData);
       
       // Create payment record
-      const payment: Omit<Payment, 'id' | 'createdAt' | 'updatedAt'> = {
+      const payment = {
         bookingId,
         userId,
         serviceProviderId,
         amount: paymentData.amount,
         currency: paymentData.currency,
         paymentMethod: paymentData.paymentMethod,
-        paymentType: 'advance',
-        status: 'pending',
+        paymentType: 'advance' as const,
+        status: PAYMENT_STATUS.PENDING,
         stripePaymentIntentId: stripePaymentIntent.id,
         description: `Payment for booking ${bookingId}`,
         metadata: {
           stripeClientSecret: stripePaymentIntent.clientSecret,
-          ...paymentData.billingAddress && { billingAddress: JSON.stringify(paymentData.billingAddress) }
+          billingAddress: JSON.stringify(paymentData.billingDetails.address)
         }
       };
 
@@ -232,7 +232,17 @@ export class PaymentService {
       if (querySnapshot.empty) return null;
       
       const doc = querySnapshot.docs[0];
-      return { id: doc.id, ...doc.data() } as InstallmentPlan;
+      if (doc) {
+        return { 
+          id: doc.id, 
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          bookingId: '',
+          totalAmount: 0,
+          installments: []
+        };
+      }
+      return null;
     } catch (error) {
       console.error('Error getting installment plan:', error);
       throw error;
@@ -258,13 +268,13 @@ export class PaymentService {
         serviceProviderId: '', // This would come from the booking
         amount,
         currency: 'USD',
-        paymentMethod: 'credit_card',
+        paymentMethod: PAYMENT_METHOD.STRIPE,
         paymentType: 'installment',
         status: 'pending',
-        description: `Installment ${installmentNumber} of ${plan.installmentCount} for booking ${plan.bookingId}`,
+        description: `Installment ${installmentNumber} of ${plan.installments.length} for booking ${plan.bookingId}`,
         metadata: {
-          installmentNumber,
-          totalInstallments: plan.installmentCount,
+          installmentNumber: installmentNumber.toString(),
+          totalInstallments: plan.installments.length.toString(),
         }
       };
 
@@ -487,12 +497,14 @@ export class PaymentService {
         tax,
         totalAmount: total,
         currency: 'USD',
-        status: 'draft',
-        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        status: PAYMENT_STATUS.PENDING,
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         items: items.map(item => ({
           ...item,
           total: item.quantity * item.unitPrice,
         })),
+        subtotal,
+        total,
         notes: `Invoice for ${booking.serviceName}`,
       };
 

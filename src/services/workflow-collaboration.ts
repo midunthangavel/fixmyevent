@@ -8,7 +8,7 @@ import {
   Task, 
   TaskComment, 
   ApprovalWorkflow, 
-  ApprovalStep, 
+ 
   EventTemplate 
 } from '@/types/productivity';
 
@@ -340,7 +340,7 @@ export class WorkflowCollaborationService {
         id: `workflow_${Date.now()}_${Math.random()}`,
         eventId: request.eventId,
         type: request.type,
-        steps: request.steps.map(step => ({
+        steps: await Promise.all(request.steps.map(async step => ({
           id: `step_${Date.now()}_${Math.random()}`,
           title: step.title,
           description: step.description,
@@ -348,7 +348,7 @@ export class WorkflowCollaborationService {
           approverName: await this.getUserName(step.approverId),
           order: step.order,
           status: 'pending'
-        })),
+        }))),
         currentStep: 0,
         status: 'pending',
         createdAt: new Date(),
@@ -740,8 +740,12 @@ export class WorkflowCollaborationService {
       const workload: Record<string, number> = {};
 
       for (const member of team) {
-        const memberTasks = this.tasks.get(member.userId) || [];
-        workload[member.userId] = memberTasks.length;
+        const memberTasks = this.tasks.get(member.userId);
+        if (Array.isArray(memberTasks)) {
+          workload[member.userId] = memberTasks.length;
+        } else {
+          workload[member.userId] = 0;
+        }
       }
 
       return workload;

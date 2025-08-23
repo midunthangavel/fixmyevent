@@ -55,13 +55,21 @@ export interface RiskAnalysisRequest {
   vendorCount: number;
 }
 
+interface AIService {
+  generateEventIdeas(prompt: string): Promise<string>;
+  getSmartVenueRecommendations(prompt: string): Promise<string>;
+}
+
 export class AIProductivityService {
-  private aiService = costOptimizedAIService;
+  private aiService: AIService | null = null; // TODO: Implement costOptimizedAIService
 
   // ===== AUTOMATED EVENT PLANNING =====
 
   async generateEventPlan(request: EventPlanningRequest): Promise<AIEventPlan> {
     try {
+      if (!this.aiService) {
+        return this.generateFallbackEventPlan(request);
+      }
       const prompt = this.buildEventPlanningPrompt(request);
       const response = await this.aiService.generateEventIdeas(prompt);
       
@@ -158,7 +166,7 @@ export class AIProductivityService {
     return timelineItems;
   }
 
-  private extractChecklistFromResponse(response: string): EventChecklistItem[] {
+  private extractChecklistFromResponse(_response: string): EventChecklistItem[] {
     // Extract checklist items from AI response
     const checklistItems: EventChecklistItem[] = [];
     
@@ -187,7 +195,7 @@ export class AIProductivityService {
     return checklistItems;
   }
 
-  private extractBudgetRecommendationsFromResponse(response: string): BudgetRecommendation[] {
+  private extractBudgetRecommendationsFromResponse(_response: string): BudgetRecommendation[] {
     // Extract budget recommendations from AI response
     const recommendations: BudgetRecommendation[] = [];
     
@@ -214,7 +222,7 @@ export class AIProductivityService {
     return recommendations;
   }
 
-  private extractVendorSuggestionsFromResponse(response: string): VendorSuggestion[] {
+  private extractVendorSuggestionsFromResponse(_response: string): VendorSuggestion[] {
     // Extract vendor suggestions from AI response
     const suggestions: VendorSuggestion[] = [];
     
@@ -235,7 +243,7 @@ export class AIProductivityService {
     return suggestions;
   }
 
-  private extractRiskAssessmentFromResponse(response: string): RiskAssessment {
+  private extractRiskAssessmentFromResponse(_response: string): RiskAssessment {
     // Extract risk assessment from AI response
     const risks: Risk[] = [
       {
@@ -271,6 +279,9 @@ export class AIProductivityService {
 
   async optimizeBudget(request: BudgetOptimizationRequest): Promise<BudgetRecommendation[]> {
     try {
+      if (!this.aiService) {
+        return this.generateFallbackBudgetRecommendations(request);
+      }
       const prompt = this.buildBudgetOptimizationPrompt(request);
       const response = await this.aiService.generateEventIdeas(prompt);
       
@@ -304,7 +315,7 @@ export class AIProductivityService {
     `;
   }
 
-  private parseBudgetOptimizationResponse(response: string, request: BudgetOptimizationRequest): BudgetRecommendation[] {
+  private parseBudgetOptimizationResponse(_response: string, request: BudgetOptimizationRequest): BudgetRecommendation[] {
     // Parse AI response for budget optimization
     const recommendations: BudgetRecommendation[] = [];
     
@@ -327,7 +338,7 @@ export class AIProductivityService {
   }
 
   private calculateRecommendedBudget(currentAmount: number, qualityPreference: string): number {
-    const qualityMultipliers = {
+    const qualityMultipliers: Record<string, number> = {
       'budget': 0.7,
       'balanced': 0.85,
       'premium': 1.1
@@ -372,6 +383,9 @@ export class AIProductivityService {
 
   async getVendorRecommendations(request: VendorRecommendationRequest): Promise<VendorSuggestion[]> {
     try {
+      if (!this.aiService) {
+        return this.generateFallbackVendorSuggestions(request);
+      }
       const prompt = this.buildVendorRecommendationPrompt(request);
       const response = await this.aiService.getSmartVenueRecommendations(prompt);
       
@@ -405,7 +419,7 @@ export class AIProductivityService {
     `;
   }
 
-  private parseVendorRecommendationResponse(response: string, request: VendorRecommendationRequest): VendorSuggestion[] {
+  private parseVendorRecommendationResponse(_response: string, request: VendorRecommendationRequest): VendorSuggestion[] {
     // Parse AI response for vendor recommendations
     const suggestions: VendorSuggestion[] = [];
     
@@ -434,6 +448,9 @@ export class AIProductivityService {
 
   async analyzeRisks(request: RiskAnalysisRequest): Promise<RiskAssessment> {
     try {
+      if (!this.aiService) {
+        return this.generateFallbackRiskAssessment(request);
+      }
       const prompt = this.buildRiskAnalysisPrompt(request);
       const response = await this.aiService.generateEventIdeas(prompt);
       
@@ -467,7 +484,7 @@ export class AIProductivityService {
     `;
   }
 
-  private parseRiskAnalysisResponse(response: string, request: RiskAnalysisRequest): RiskAssessment {
+  private parseRiskAnalysisResponse(_response: string, request: RiskAnalysisRequest): RiskAssessment {
     // Parse AI response for risk analysis
     const risks: Risk[] = [];
     
@@ -638,23 +655,23 @@ export class AIProductivityService {
 
   // ===== HELPER METHODS =====
 
-  private async enhancePlanWithBestPractices(plan: AIEventPlan, request: EventPlanningRequest): Promise<AIEventPlan> {
+  private async enhancePlanWithBestPractices(plan: AIEventPlan, _request: EventPlanningRequest): Promise<AIEventPlan> {
     // Enhance plan with industry best practices
     // This would typically involve database lookups and AI analysis
     return plan;
   }
 
-  private async enhanceBudgetRecommendations(recommendations: BudgetRecommendation[], request: BudgetOptimizationRequest): Promise<BudgetRecommendation[]> {
+  private async enhanceBudgetRecommendations(recommendations: BudgetRecommendation[], _request: BudgetOptimizationRequest): Promise<BudgetRecommendation[]> {
     // Enhance budget recommendations with market data
     return recommendations;
   }
 
-  private async enhanceVendorSuggestions(suggestions: VendorSuggestion[], request: VendorRecommendationRequest): Promise<VendorSuggestion[]> {
+  private async enhanceVendorSuggestions(suggestions: VendorSuggestion[], _request: VendorRecommendationRequest): Promise<VendorSuggestion[]> {
     // Enhance vendor suggestions with real-time data
     return suggestions;
   }
 
-  private async enhanceRiskAssessment(assessment: RiskAssessment, request: RiskAnalysisRequest): Promise<RiskAssessment> {
+  private async enhanceRiskAssessment(assessment: RiskAssessment, _request: RiskAnalysisRequest): Promise<RiskAssessment> {
     // Enhance risk assessment with historical data
     return assessment;
   }
@@ -706,7 +723,7 @@ export class AIProductivityService {
     }));
   }
 
-  private generateFallbackRiskAssessment(request: RiskAnalysisRequest): RiskAssessment {
+  private generateFallbackRiskAssessment(_request: RiskAnalysisRequest): RiskAssessment {
     // Generate basic risk assessment when AI is unavailable
     return {
       risks: [],

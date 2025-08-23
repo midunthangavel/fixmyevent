@@ -3,22 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Search, 
   Mic, 
   MicOff, 
-  Filter, 
-  MapPin, 
-  Calendar, 
-  Users, 
-  DollarSign,
-  Clock,
   X,
   History,
-  Star,
   TrendingUp
 } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
@@ -46,9 +38,9 @@ export function EnhancedSearch({
   const [isListening, setIsListening] = useState(false);
   const [searchHistory, setSearchHistory] = useLocalStorage<SearchHistoryItem[]>('search-history', []);
   const [showHistory, setShowHistory] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+
   
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Popular search suggestions
   const popularSearches = [
@@ -65,13 +57,13 @@ export function EnhancedSearch({
   useEffect(() => {
     // Initialize speech recognition if available
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
       recognitionRef.current.lang = 'en-US';
 
-      recognitionRef.current.onresult = (event) => {
+      recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setSearchQuery(transcript);
         setIsListening(false);
@@ -80,7 +72,7 @@ export function EnhancedSearch({
         }
       };
 
-      recognitionRef.current.onerror = (event) => {
+      recognitionRef.current.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
       };

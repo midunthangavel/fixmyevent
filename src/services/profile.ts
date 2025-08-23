@@ -30,7 +30,11 @@ export class ProfileService {
    */
   async updateRole(userId: string, role: UserProfile['role']): Promise<void> {
     try {
-      await this.update(userId, { role });
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { 
+        role,
+        updatedAt: serverTimestamp() 
+      });
       logUserAction('role_updated', userId, { newRole: role });
     } catch (error) {
       logServiceError('ProfileService', 'updateRole', error, { userId, role });
@@ -118,7 +122,8 @@ export class ProfileService {
    */
   async verifyUser(userId: string): Promise<void> {
     try {
-      await this.update(userId, { 
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { 
         isVerified: true, 
         verificationDate: serverTimestamp() 
       });
@@ -134,7 +139,10 @@ export class ProfileService {
    */
   async updateLastActive(userId: string): Promise<void> {
     try {
-      await this.update(userId, { lastActive: serverTimestamp() });
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { 
+        lastActive: serverTimestamp() 
+      });
     } catch (error) {
       // Don't throw error for last active updates as they're not critical
       logServiceError('ProfileService', 'updateLastActive', error, { userId });
